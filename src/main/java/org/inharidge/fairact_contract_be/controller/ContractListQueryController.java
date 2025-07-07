@@ -27,7 +27,7 @@ public class ContractListQueryController {
     }
 
     // home
-    //TODO:: User의 최신 열람 계약 목록 3개 조회 API(근로자, 고용주 통합)
+    // User의 최신 열람 계약 목록 3개 조회 API(근로자, 고용주 통합)
     @GetMapping("/recent")
     public ResponseEntity<?> findRecent3Contracts(
             @RequestHeader(name = "Authorization") String authHeader) {
@@ -55,7 +55,7 @@ public class ContractListQueryController {
         }
     }
 
-    //TODO:: User의 내 서명 필요 계약 문서 목록 3개 조회 API(근로자, 고용주 통합)
+    // User의 내 서명 필요 계약 문서 목록 3개 조회 API(근로자, 고용주 통합)
     @GetMapping("/require/me")
     public ResponseEntity<?> findTop3ContractsRequiringUserSign(
             @RequestHeader(name = "Authorization") String authHeader) {
@@ -83,8 +83,8 @@ public class ContractListQueryController {
         }
     }
 
-    //TODO:: User의 상대방 서명 필요 계약 문서 목록 3개 조회 API(근로자, 고용주 통합)
-    @GetMapping("/require/me")
+    // User의 상대방 서명 필요 계약 문서 목록 3개 조회 API(근로자, 고용주 통합)
+    @GetMapping("/require/opponent")
     public ResponseEntity<?> findTop3ContractsRequiringOpponentSign(
             @RequestHeader(name = "Authorization") String authHeader) {
 
