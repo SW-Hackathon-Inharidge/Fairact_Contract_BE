@@ -48,7 +48,7 @@ public class ContractUploadController {
     @PostMapping(value = "/file/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> uploadContractFileAndCreateContract(
             @RequestHeader(name = "Authorization") String authHeader,
-            @RequestParam(name = "contract") MultipartFile contractFile) {
+            @RequestParam(name = "contract_file") MultipartFile contractFile) {
 
         try {
             String token = AuthorizationHeaderUtil.extractToken(authHeader);
@@ -91,13 +91,13 @@ public class ContractUploadController {
     @PatchMapping(value = "/{contractId}/file/reupload/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> reUploadContractFileAndUpdateContract(
             @RequestHeader(name = "Authorization") String authHeader,
-            @RequestParam(name = "contract") MultipartFile newContractFile,
+            @RequestParam(name = "contract_file") MultipartFile newContractFile,
             @PathVariable Long contractId) {
 
         try {
             String token = AuthorizationHeaderUtil.extractToken(authHeader);
             Long userId = jwtTokenService.extractUserId(token);
-            ContractDetailDTO contractDetailDTO = contractCommandService.updateContractFile(newContractFile, contractId, userId);
+            ContractDetailDTO contractDetailDTO = contractCommandService.updateContractFileByReUpload(newContractFile, contractId, userId);
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("Content-Type", "application/json");
@@ -109,7 +109,6 @@ public class ContractUploadController {
         } catch (JwtAuthenticationException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body("Invalid JWT: " + e.getMessage());
-
         } catch (UnAuthorizedContractAccessException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body("UnAuthorized Access: " + e.getMessage());
