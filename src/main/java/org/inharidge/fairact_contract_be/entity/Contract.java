@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.inharidge.fairact_contract_be.dto.ContractDetailDTO;
 import org.inharidge.fairact_contract_be.dto.ContractSummaryDTO;
 
 @Table(name = "contract")
@@ -41,8 +42,8 @@ public class Contract extends BaseUnixTimeEntity {
     @Column(name = "file_hash")
     private String fileHash;
 
-    @Column(name = "file_status")
-    private Boolean fileStatus;
+    @Column(name = "file_processed")
+    private Boolean fileProcessed;
 
     @Column(name = "worker_sign_x")
     private Long workerSignX;
@@ -65,6 +66,25 @@ public class Contract extends BaseUnixTimeEntity {
                 .is_worker_signed(isWorkerSigned)
                 .is_owner_signed(isOwnerSigned)
                 .is_invite_accepted(isInviteAccepted)
+                .build();
+    }
+
+    public ContractDetailDTO toContractDetailDTO() {
+        return ContractDetailDTO.builder()
+                .id(id)
+                .title(title)
+                .owner_id(ownerId)
+                .worker_id(workerId)
+                .is_worker_signed(isWorkerSigned)
+                .is_owner_signed(isOwnerSigned)
+                .is_invite_accepted(isInviteAccepted)
+                .file_uri(fileUri)
+                .file_hash(fileHash)
+                .file_processed(fileProcessed)
+                .worker_sign_x(workerSignX)
+                .worker_sign_y(workerSignY)
+                .owner_sign_x(ownerSignX)
+                .owner_sign_y(ownerSignY)
                 .build();
     }
 }
