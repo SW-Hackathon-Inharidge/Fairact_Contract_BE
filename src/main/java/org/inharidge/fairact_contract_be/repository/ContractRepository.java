@@ -13,4 +13,6 @@ public interface ContractRepository extends JpaRepository<Contract, Long> {
     List<Contract> findTop3ByOwnerIdAndIsOwnerSignedFalseOrWorkerIdAndIsWorkerSignedFalseOrderByIdDesc(Long ownerId, Long workerId);
 
     List<Contract> findTop3ByOwnerIdAndIsOwnerSignedTrueAndIsWorkerSignedFalseOrWorkerIdAndIsWorkerSignedTrueAndIsOwnerSignedFalseOrderByIdDesc(Long ownerId, Long workerId);
+
+    Contract findByOwnerId(Long ownerId);
 }
