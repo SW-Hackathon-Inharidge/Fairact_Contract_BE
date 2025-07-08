@@ -1,5 +1,11 @@
 package org.inharidge.fairact_contract_be.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.inharidge.fairact_contract_be.dto.ContractSummaryDTO;
 import org.inharidge.fairact_contract_be.exception.JwtAuthenticationException;
 import org.inharidge.fairact_contract_be.service.ContractQueryService;
@@ -28,6 +34,16 @@ public class ContractListQueryController {
 
     // home
     // User의 최신 열람 계약 목록 3개 조회 API(근로자, 고용주 통합)
+    @Operation(summary = "최근 열람한 계약서 3건 조회", description = "사용자가 가장 최근 열람한 계약서 3건을 반환합니다. (근로자, 고용주 통합)")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "성공적으로 최근 계약 목록을 반환했습니다.",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = ContractSummaryDTO.class)))
+            ),
+            @ApiResponse(responseCode = "401", description = "JWT 인증 실패"),
+            @ApiResponse(responseCode = "500", description = "서버 내부 오류")
+    })
     @GetMapping("/recent")
     public ResponseEntity<?> findRecent3Contracts(
             @RequestHeader(name = "Authorization") String authHeader) {
@@ -56,6 +72,13 @@ public class ContractListQueryController {
     }
 
     // User의 내 서명 필요 계약 문서 목록 3개 조회 API(근로자, 고용주 통합)
+    @Operation(summary = "내 서명 필요 계약서 3건 조회", description = "사용자가 서명해야 하는 계약서 상위 3건을 반환합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "계약 요약 리스트 반환 성공",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = ContractSummaryDTO.class)))),
+            @ApiResponse(responseCode = "401", description = "JWT 인증 실패"),
+            @ApiResponse(responseCode = "500", description = "서버 내부 오류")
+    })
     @GetMapping("/require/me")
     public ResponseEntity<?> findTop3ContractsRequiringUserSign(
             @RequestHeader(name = "Authorization") String authHeader) {
@@ -84,6 +107,13 @@ public class ContractListQueryController {
     }
 
     // User의 상대방 서명 필요 계약 문서 목록 3개 조회 API(근로자, 고용주 통합)
+    @Operation(summary = "상대방 서명 필요 계약서 3건 조회", description = "상대방이 서명해야 하는 계약서 상위 3건을 반환합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "계약 요약 리스트 반환 성공",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = ContractSummaryDTO.class)))),
+            @ApiResponse(responseCode = "401", description = "JWT 인증 실패"),
+            @ApiResponse(responseCode = "500", description = "서버 내부 오류")
+    })
     @GetMapping("/require/opponent")
     public ResponseEntity<?> findTop3ContractsRequiringOpponentSign(
             @RequestHeader(name = "Authorization") String authHeader) {
