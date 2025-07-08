@@ -38,6 +38,8 @@ dependencies {
     // for SHA256
     implementation 'commons-codec:commons-codec:1.15'
 
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0'
 
     implementation 'org.postgresql:postgresql:42.7.3'
