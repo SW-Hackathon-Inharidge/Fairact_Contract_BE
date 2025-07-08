@@ -1,13 +1,11 @@
 package org.inharidge.fairact_contract_be.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.inharidge.fairact_contract_be.dto.ContractDetailDTO;
 import org.inharidge.fairact_contract_be.dto.ContractSummaryDTO;
 
+@EqualsAndHashCode(callSuper = true)
 @Table(name = "contract")
 @Entity
 @Data
