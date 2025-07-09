@@ -1,5 +1,7 @@
 package org.inharidge.fairact_contract_be.service;
 
+import jakarta.transaction.Transactional;
+import org.inharidge.fairact_contract_be.config.SseEmitterManager;
 import org.inharidge.fairact_contract_be.dto.ContractDetailDTO;
 import org.inharidge.fairact_contract_be.dto.request.ContractDigitalSignRequestDTO;
 import org.inharidge.fairact_contract_be.entity.Contract;
@@ -21,11 +23,15 @@ public class ContractCommandService {
     private final ContractRepository contractRepository;
     private final MinioService minioService;
     private final RedisService redisService;
+    private final SseEmitterManager sseEmitterManager;
+    private final ToxicClauseService toxicClauseService;
 
-    public ContractCommandService(ContractRepository contractRepository, MinioService minioService, RedisService redisService) {
+    public ContractCommandService(ContractRepository contractRepository, MinioService minioService, RedisService redisService, SseEmitterManager sseEmitterManager, ToxicClauseService toxicClauseService) {
         this.contractRepository = contractRepository;
         this.minioService = minioService;
         this.redisService = redisService;
+        this.sseEmitterManager = sseEmitterManager;
+        this.toxicClauseService = toxicClauseService;
     }
 
     public ContractDetailDTO createContract(MultipartFile contractFile, Long userId) {
@@ -76,6 +82,7 @@ public class ContractCommandService {
         }
     }
 
+    @Transactional
     public ContractDetailDTO updateContractStateAndDigitalSign(Long contractId, Long userId, ContractDigitalSignRequestDTO contractDigitalSignRequestDTO) {
         Contract contract = contractRepository.findById(contractId)
                 .orElseThrow(() -> new NotFoundContractException("contractid : " + contractId));
@@ -88,10 +95,21 @@ public class ContractCommandService {
             contract.setIsWorkerSigned(true);
             contract.setWorkerSignX(contractDigitalSignRequestDTO.getSign_x());
             contract.setWorkerSignY(contractDigitalSignRequestDTO.getSign_y());
+            toxicClauseService.updateToxicClausesCheckState(contractId);
         } else
             throw new UnAuthorizedContractAccessException("userId : " + userId);
 
-        return contractRepository.save(contract).toContractDetailDTO();
+        Contract saved = contractRepository.save(contract);
+        ContractDetailDTO dto = saved.toContractDetailDTO();
+
+        // 계약 소유자와 근로자에게 실시간 알림 전송
+        if (contract.getOwnerId().equals(userId) && contract.getIsInviteAccepted())
+            sseEmitterManager.sendToUser(saved.getWorkerId(), dto);
+        // 근로자가 초대된 상태에서만 실시간으로 알림 전송
+        if (contract.getWorkerId().equals(userId))
+            sseEmitterManager.sendToUser(saved.getOwnerId(), dto);
+
+        return dto;
     }
 
     public void createEmailInfoInRedis(Long contractId, Long userId, String opponent_email) {
