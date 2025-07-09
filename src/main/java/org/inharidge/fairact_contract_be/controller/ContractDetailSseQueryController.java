@@ -13,11 +13,11 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @RestController
 @RequestMapping("/contract/sse")
-public class ContractDetailQueryController {
+public class ContractDetailSseQueryController {
     private final JwtTokenService jwtTokenService;
     private final SseEmitterManager sseEmitterManager;
 
-    public ContractDetailQueryController(JwtTokenService jwtTokenService, SseEmitterManager sseEmitterManager) {
+    public ContractDetailSseQueryController(JwtTokenService jwtTokenService, SseEmitterManager sseEmitterManager) {
         this.jwtTokenService = jwtTokenService;
         this.sseEmitterManager = sseEmitterManager;
     }
