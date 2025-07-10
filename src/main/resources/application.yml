@@ -78,6 +78,7 @@ minio:
   access-key: ${MINIO_DASHBOARD_USER}
   secret-key: ${MINIO_DASHBOARD_PASSWORD}
   url: ${MINIO_STORAGE_URL}
+  public-url: ${MINIO_PUBLIC_STORAGE_URL}
   bucket: ${MINIO_BUCKET_NAME}
 
 jwt:

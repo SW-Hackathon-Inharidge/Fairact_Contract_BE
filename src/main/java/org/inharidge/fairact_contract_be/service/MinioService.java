@@ -12,15 +12,8 @@ import java.nio.charset.StandardCharsets;
 @Service
 @RequiredArgsConstructor
 public class MinioService {
-
-    @Value("${minio.access-key}")
-    private String accessKey;
-
-    @Value("${minio.secret-key}")
-    private String secretKey;
-
-    @Value("${minio.url}")
-    private String url;
+    @Value("${minio.public-url}")
+    private String publicUrl;
 
     @Value("${minio.bucket}")
     private String bucket;
@@ -49,7 +42,7 @@ public class MinioService {
                     .build());
 
             // 반환할 URL 또는 경로
-            return url + "/" + bucket + "/" + objectName;
+            return publicUrl + "/" + bucket + "/" + objectName;
 
         } catch (Exception e) {
             throw new RuntimeException("Minio 업로드 실패", e);
@@ -59,7 +52,7 @@ public class MinioService {
     public void deleteFile(String fileUri) {
         try {
             String decodedUri = URLDecoder.decode(fileUri, StandardCharsets.UTF_8);
-            String prefix = url.endsWith("/") ? url : url + "/";
+            String prefix = publicUrl.endsWith("/") ? publicUrl : publicUrl + "/";
 
             if (!decodedUri.startsWith(prefix)) {
                 throw new IllegalArgumentException("MinIO URI가 잘못되었습니다.");
