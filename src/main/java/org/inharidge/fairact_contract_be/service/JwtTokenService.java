@@ -3,16 +3,12 @@ package org.inharidge.fairact_contract_be.service;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.inharidge.fairact_contract_be.dto.TokenDTO;
 import org.inharidge.fairact_contract_be.entity.AuthProvider;
 import org.inharidge.fairact_contract_be.exception.JwtAuthenticationException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
-import java.util.Date;
-import java.util.UUID;
 
 @Service
 public class JwtTokenService {
@@ -34,25 +30,6 @@ public class JwtTokenService {
     public void init() {
         this.key = Keys.hmacShaKeyFor(secret.getBytes());
     }
-
-//    public TokenDTO generateToken(Long userId, String email, AuthProvider provider) {
-//        Date now = new Date();
-//        Date expiryDate = new Date(now.getTime() + tokenValidityInSeconds * 3600);
-//
-//        String accessToken = Jwts.builder()
-//                .setSubject(userId.toString())
-//                .claim("email", email)
-//                .claim("provider", provider.getValue())
-//                .setIssuedAt(now)
-//                .setExpiration(expiryDate)
-//                .signWith(key, SignatureAlgorithm.HS256)
-//                .compact();
-//
-//        String refreshToken = generateRefreshToken();
-//        saveRefreshToken(userId.toString(), accessToken, refreshToken);
-//
-//        return new TokenDTO(accessToken, refreshToken);
-//    }
 
     public Jws<Claims> validateAccessToken(String token) {
         try {
