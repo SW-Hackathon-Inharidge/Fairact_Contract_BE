@@ -1,27 +1,21 @@
 package org.inharidge.fairact_contract_be.util;
 
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import org.inharidge.fairact_contract_be.entity.BaseUnixTimeEntity;
+import org.springframework.data.mongodb.core.mapping.event.AbstractMongoEventListener;
+import org.springframework.data.mongodb.core.mapping.event.BeforeConvertEvent;
+import org.springframework.stereotype.Component;
 
-import java.time.Instant;
+@Component
+public class UnixTimestampEntityListener extends AbstractMongoEventListener<BaseUnixTimeEntity> {
 
-public class UnixTimestampEntityListener {
+    @Override
+    public void onBeforeConvert(BeforeConvertEvent<BaseUnixTimeEntity> event) {
+        BaseUnixTimeEntity entity = event.getSource();
+        long now = System.currentTimeMillis() / 1000L;
 
-    @PrePersist
-    public void prePersist(Object entity) {
-        if (entity instanceof BaseUnixTimeEntity) {
-            long now = Instant.now().getEpochSecond();
-            ((BaseUnixTimeEntity) entity).setCreatedAt(now);
-            ((BaseUnixTimeEntity) entity).setModifiedAt(now);
+        if (entity.getCreatedAt() == null) {
+            entity.setCreatedAt(now);
         }
-    }
-
-    @PreUpdate
-    public void preUpdate(Object entity) {
-        if (entity instanceof BaseUnixTimeEntity) {
-            long now = Instant.now().getEpochSecond();
-            ((BaseUnixTimeEntity) entity).setModifiedAt(now);
-        }
+        entity.setModifiedAt(now);
     }
 }
