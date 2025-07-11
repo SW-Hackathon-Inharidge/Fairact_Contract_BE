@@ -7,7 +7,6 @@ import org.inharidge.fairact_contract_be.repository.ContractRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class ContractQueryService {
@@ -21,7 +20,7 @@ public class ContractQueryService {
     }
 
     public List<ContractSummaryDTO> findRecentViewedContractByUserId(Long userId) {
-        List<Long> contractViewHistoryIds =
+        List<String> contractViewHistoryIds =
                 contractViewHistoryService.findRecent3ContractViewHistoryByUserId(userId)
                         .stream().map(ContractViewHistory::getContractId)
                         .toList();
@@ -33,13 +32,13 @@ public class ContractQueryService {
 
 
     public List<ContractSummaryDTO> findTop3ContractsRequiringUserSignByUserId(Long userId) {
-        return contractRepository.findTop3ByOwnerIdAndIsOwnerSignedFalseOrWorkerIdAndIsWorkerSignedFalseOrderByIdDesc(userId, userId)
+        return contractRepository.findTop3UnsignedByOwnerOrWorker(userId, userId)
                 .stream().map(Contract::toContractSummaryDTO)
                 .toList();
     }
 
     public List<ContractSummaryDTO> findTop3ContractsRequiringOpponentSignByUserId(Long userId) {
-        return contractRepository.findTop3ByOwnerIdAndIsOwnerSignedTrueAndIsWorkerSignedFalseOrWorkerIdAndIsWorkerSignedTrueAndIsOwnerSignedFalseOrderByIdDesc(userId, userId)
+        return contractRepository.findTop3HalfSignedByOwnerOrWorker(userId, userId)
                 .stream().map(Contract::toContractSummaryDTO)
                 .toList();
     }
