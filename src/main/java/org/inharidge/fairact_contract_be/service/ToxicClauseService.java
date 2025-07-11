@@ -1,6 +1,8 @@
 package org.inharidge.fairact_contract_be.service;
 
-import org.inharidge.fairact_contract_be.entity.ToxicClause;
+import org.inharidge.fairact_contract_be.entity.toxic_clause.ToxicClause;
+import org.inharidge.fairact_contract_be.exception.NotFoundContractException;
+import org.inharidge.fairact_contract_be.repository.ContractRepository;
 import org.inharidge.fairact_contract_be.repository.ToxicClauseRepository;
 import org.springframework.stereotype.Service;
 
@@ -10,14 +12,18 @@ import java.util.List;
 @Service
 public class ToxicClauseService {
     private final ToxicClauseRepository toxicClauseRepository;
+    private final ContractRepository contractRepository;
 
-    public ToxicClauseService(ToxicClauseRepository toxicClauseRepository) {
+    public ToxicClauseService(ToxicClauseRepository toxicClauseRepository, ContractRepository contractRepository) {
         this.toxicClauseRepository = toxicClauseRepository;
+        this.contractRepository = contractRepository;
     }
 
-    public void updateToxicClausesCheckState(Long contractId) {
+    public void updateToxicClausesCheckState(String contractId) {
         List<ToxicClause> toxicClauses =
-                toxicClauseRepository.findAllByContractId(contractId);
+                contractRepository.findById(contractId)
+                        .orElseThrow(() -> new NotFoundContractException("contractId : " + contractId))
+                        .getClauses();
 
         for (ToxicClause toxicClause : toxicClauses) {
             toxicClause.setIsChecked(true);
