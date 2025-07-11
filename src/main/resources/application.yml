@@ -5,20 +5,6 @@ spring:
   config:
     import: optional:file:.env[.properties]
 
-  datasource:
-    url: ${POSTGRES_URL}
-    username: ${POSTGRES_USERNAME}
-    password: ${POSTGRES_PASSWORD}
-    driver-class-name: org.postgresql.Driver
-
-  jpa:
-    hibernate:
-      ddl-auto: update
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-        format_sql: true
-
   security:
     oauth2:
       client:
@@ -48,6 +34,7 @@ spring:
             token-uri: https://kauth.kakao.com/oauth/token
             user-info-uri: https://kapi.kakao.com/v2/user/me
 
+
   data:
     redis:
       client-type: lettuce
@@ -56,6 +43,9 @@ spring:
       host: ${REDIS_HOST}
       port: ${REDIS_PORT}
       timeout: 7200s
+
+    mongodb:
+      uri: ${MONGO_URI}
 
   mail:
     host: ${EMAIL_HOST}
@@ -83,4 +73,4 @@ minio:
 
 jwt:
   secret: "testtesttesttesttesttesttesttesttest"
-  access-token-validity-in-seconds: 2  # 2??
+  access-token-validity-in-seconds: 2
