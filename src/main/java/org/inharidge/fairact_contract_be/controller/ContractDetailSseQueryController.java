@@ -31,7 +31,7 @@ public class ContractDetailSseQueryController {
             String token = AuthorizationHeaderUtil.extractToken(authHeader);
             Long userId = jwtTokenService.extractUserId(token);
 
-            return sseEmitterManager.addEmitter(userId);
+            return sseEmitterManager.addEmitter(userId, "contract-detail");
         } catch (JwtAuthenticationException e) {
             SseEmitter emitter = new SseEmitter(60 * 60 * 1000L); // 1시간 유지
             sseEmitterManager.sendErrorToClient(emitter, "Invalid JWT: " + e.getMessage());
@@ -44,5 +44,25 @@ public class ContractDetailSseQueryController {
         }
     }
 
-    //TODO:: 독소조항 검사 결과 조회 API - SSE
+    // 독소조항 검사 결과 조회 API - SSE
+    @GetMapping(value = "/subscribe/toxic-clause", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter findContractToxicClause(
+            @RequestHeader(name = "Authorization") String authHeader) {
+
+        try {
+            String token = AuthorizationHeaderUtil.extractToken(authHeader);
+            Long userId = jwtTokenService.extractUserId(token);
+
+            return sseEmitterManager.addEmitter(userId, "toxic-clause");
+        } catch (JwtAuthenticationException e) {
+            SseEmitter emitter = new SseEmitter(60 * 60 * 1000L); // 1시간 유지
+            sseEmitterManager.sendErrorToClient(emitter, "Invalid JWT: " + e.getMessage());
+            return emitter;
+
+        } catch (Exception e) {
+            SseEmitter emitter = new SseEmitter(60 * 60 * 1000L); // 1시간 유지
+            sseEmitterManager.sendErrorToClient(emitter, "Internal error: " + e.getMessage());
+            return emitter;
+        }
+    }
 }

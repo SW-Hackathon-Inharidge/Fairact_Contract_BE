@@ -11,29 +11,35 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class SseEmitterManager {
 
-    private final Map<Long, SseEmitter> emitters = new ConcurrentHashMap<>();
+    // 구조 변경: 유저별 → 이벤트별 emitter 관리
+    private final Map<Long, Map<String, SseEmitter>> emitterMap = new ConcurrentHashMap<>();
 
-    public SseEmitter addEmitter(Long userId) {
-        SseEmitter emitter = new SseEmitter(60 * 60 * 1000L);
+    public SseEmitter addEmitter(Long userId, String eventType) {
+        SseEmitter emitter = new SseEmitter(60 * 60 * 1000L); // 1시간 유지
 
-        emitter.onCompletion(() -> emitters.remove(userId));
-        emitter.onTimeout(() -> emitters.remove(userId));
-        emitter.onError(e -> emitters.remove(userId));
+        emitter.onCompletion(() -> removeEmitter(userId, eventType));
+        emitter.onTimeout(() -> removeEmitter(userId, eventType));
+        emitter.onError(e -> removeEmitter(userId, eventType));
 
-        emitters.put(userId, emitter);
+        emitterMap.computeIfAbsent(userId, id -> new ConcurrentHashMap<>())
+                .put(eventType, emitter);
+
         return emitter;
     }
 
-    public void sendToUser(Long userId, Object data) {
-        SseEmitter emitter = emitters.get(userId);
+    public void sendToUser(Long userId, String eventType, Object data) {
+        Map<String, SseEmitter> userEmitters = emitterMap.get(userId);
+        if (userEmitters == null) return;
+
+        SseEmitter emitter = userEmitters.get(eventType);
         if (emitter != null) {
             try {
                 emitter.send(SseEmitter.event()
-                        .name("contract-update")
+                        .name(eventType)
                         .data(data));
             } catch (IOException e) {
                 emitter.completeWithError(e);
-                emitters.remove(userId);
+                userEmitters.remove(eventType);
             }
         }
     }
@@ -48,4 +54,15 @@ public class SseEmitterManager {
             emitter.completeWithError(ioException);
         }
     }
+
+    private void removeEmitter(Long userId, String eventType) {
+        Map<String, SseEmitter> userEmitters = emitterMap.get(userId);
+        if (userEmitters != null) {
+            userEmitters.remove(eventType);
+            if (userEmitters.isEmpty()) {
+                emitterMap.remove(userId);
+            }
+        }
+    }
 }
+
