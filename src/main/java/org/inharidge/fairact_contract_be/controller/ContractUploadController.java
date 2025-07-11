@@ -92,7 +92,7 @@ public class ContractUploadController {
     public ResponseEntity<?> reUploadContractFileAndUpdateContract(
             @RequestHeader(name = "Authorization") String authHeader,
             @RequestParam(name = "contract_file") MultipartFile newContractFile,
-            @PathVariable Long contractId) {
+            @PathVariable String contractId) {
 
         try {
             String token = AuthorizationHeaderUtil.extractToken(authHeader);

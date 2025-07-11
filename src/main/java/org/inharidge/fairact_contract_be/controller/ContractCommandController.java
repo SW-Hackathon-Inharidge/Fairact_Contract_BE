@@ -50,7 +50,7 @@ public class ContractCommandController {
     @PatchMapping("/{contractId}/sign")
     public ResponseEntity<?> updateDigitalSignatureAndContractState(
             @RequestHeader(name = "Authorization") String authHeader,
-            @PathVariable(name = "contractId") Long contractId,
+            @PathVariable(name = "contractId") String contractId,
             @RequestBody ContractDigitalSignRequestDTO contractDigitalSignRequestDTO
             ) {
 
@@ -94,7 +94,7 @@ public class ContractCommandController {
     @PostMapping("/{contractId}/email")
     public ResponseEntity<?> sendEmailAndUpdateContractState(
             @RequestHeader(name = "Authorization") String authHeader,
-            @PathVariable(name = "contractId") Long contractId,
+            @PathVariable(name = "contractId") String contractId,
             @RequestBody ContractEmailSendingRequestDTO contractEmailSendingRequestDTO) {
 
         try {
@@ -147,7 +147,7 @@ public class ContractCommandController {
     @PatchMapping("/{contractId}/email")
     public ResponseEntity<?> acceptEmailAndUpdateContractState(
             @RequestHeader(name = "Authorization") String authHeader,
-            @PathVariable(name = "contractId") Long contractId) {
+            @PathVariable(name = "contractId") String contractId) {
 
         try {
             String token = AuthorizationHeaderUtil.extractToken(authHeader);

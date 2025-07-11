@@ -1,6 +1,5 @@
 package org.inharidge.fairact_contract_be.service;
 
-import jakarta.transaction.Transactional;
 import org.inharidge.fairact_contract_be.config.SseEmitterManager;
 import org.inharidge.fairact_contract_be.dto.ContractDetailDTO;
 import org.inharidge.fairact_contract_be.dto.request.ContractDigitalSignRequestDTO;
@@ -36,7 +35,6 @@ public class ContractCommandService {
 
     public ContractDetailDTO createContract(MultipartFile contractFile, Long userId) {
         try {
-            //TODO:: 독소조항 검사 요청 보내기 - 비동기, 응답 X, 상태 저장
             String fileUri = minioService.uploadFile(contractFile);
             String fileHash = FileHashUtil.getSha1FromMultipartFile(contractFile);
             Contract contract = Contract.builder()
@@ -58,9 +56,8 @@ public class ContractCommandService {
         }
     }
 
-    public ContractDetailDTO updateContractFileByReUpload(MultipartFile newContractFile, Long contractId, Long userId) {
+    public ContractDetailDTO updateContractFileByReUpload(MultipartFile newContractFile, String contractId, Long userId) {
         try {
-            //TODO:: 독소조항 검사 요청 보내기 - 비동기, 응답 X, 상태 저장
             Contract contract = contractRepository.findById(contractId)
                     .orElseThrow(() -> new NotFoundContractException("contractId : " + contractId));
             if (!contract.getOwnerId().equals(userId))
@@ -82,8 +79,7 @@ public class ContractCommandService {
         }
     }
 
-    @Transactional
-    public ContractDetailDTO updateContractStateAndDigitalSign(Long contractId, Long userId, ContractDigitalSignRequestDTO contractDigitalSignRequestDTO) {
+    public ContractDetailDTO updateContractStateAndDigitalSign(String contractId, Long userId, ContractDigitalSignRequestDTO contractDigitalSignRequestDTO) {
         Contract contract = contractRepository.findById(contractId)
                 .orElseThrow(() -> new NotFoundContractException("contractid : " + contractId));
 
@@ -104,15 +100,15 @@ public class ContractCommandService {
 
         // 계약 소유자와 근로자에게 실시간 알림 전송
         if (contract.getOwnerId().equals(userId) && contract.getIsInviteAccepted())
-            sseEmitterManager.sendToUser(saved.getWorkerId(), dto);
+            sseEmitterManager.sendToUser(saved.getWorkerId(), "contract-detail", dto);
         // 근로자가 초대된 상태에서만 실시간으로 알림 전송
         if (contract.getWorkerId().equals(userId))
-            sseEmitterManager.sendToUser(saved.getOwnerId(), dto);
+            sseEmitterManager.sendToUser(saved.getOwnerId(), "contract-detail", dto);
 
         return dto;
     }
 
-    public void createEmailInfoInRedis(Long contractId, Long userId, String opponent_email) {
+    public void createEmailInfoInRedis(String contractId, Long userId, String opponent_email) {
         if (!contractRepository.findById(contractId)
                 .orElseThrow(() -> new NotFoundContractException("contractId : " + contractId))
                 .getOwnerId().equals(userId))
@@ -124,7 +120,7 @@ public class ContractCommandService {
         redisService.save("email:" + contractId + ":" + opponent_email, contractId.toString(), 60 * 60 * 24);
     }
 
-    public ContractDetailDTO updateContractStateByInviteAccepted(Long contractId, Long userId) {
+    public ContractDetailDTO updateContractStateByInviteAccepted(String contractId, Long userId) {
         Contract contract = contractRepository.findById(contractId)
                 .orElseThrow(() -> new NotFoundContractException("contractId : " + contractId));
 
