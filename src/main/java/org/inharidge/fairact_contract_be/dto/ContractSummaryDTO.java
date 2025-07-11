@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 @NoArgsConstructor
 @Builder
 public class ContractSummaryDTO {
-    private Long id;
+    private String id;
     private String title;
     private Long owner_id;
     private Long worker_id;
