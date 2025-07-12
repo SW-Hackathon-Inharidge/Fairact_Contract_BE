@@ -100,12 +100,12 @@ public class ContractCommandService {
         String signUrl =
                 minioService.parsePresignedUrlToStorageUrl(contractDigitalSignRequestDTO.getPre_signed_sign_uri());
 
-        if (contract.getOwnerId().equals(userId)) {
+        if (contract.getOwnerId() != null && contract.getOwnerId().equals(userId)) {
             contract.setIsOwnerSigned(true);
             contract.setOwnerSignX(contractDigitalSignRequestDTO.getSign_x());
             contract.setOwnerSignY(contractDigitalSignRequestDTO.getSign_y());
             contract.setOwnerSignUrl(signUrl);
-        } else if (contract.getWorkerId().equals(userId)) {
+        } else if (contract.getWorkerId() != null && contract.getWorkerId().equals(userId)) {
             contract.setIsWorkerSigned(true);
             contract.setWorkerSignX(contractDigitalSignRequestDTO.getSign_x());
             contract.setWorkerSignY(contractDigitalSignRequestDTO.getSign_y());

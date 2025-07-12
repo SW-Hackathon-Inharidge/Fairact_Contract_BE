@@ -3,6 +3,7 @@ package org.inharidge.fairact_contract_be.entity;
 import lombok.*;
 import org.inharidge.fairact_contract_be.dto.ContractDetailDTO;
 import org.inharidge.fairact_contract_be.dto.ContractSummaryDTO;
+import org.inharidge.fairact_contract_be.entity.page_size.PageSize;
 import org.inharidge.fairact_contract_be.entity.toxic_clause.ToxicClause;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -46,6 +47,7 @@ public class Contract extends BaseUnixTimeEntity {
     private Long ownerSignScale;
     private String ownerSignUrl;
 
+    private List<PageSize> pageSize;
     private List<ToxicClause> clauses;
 
     public ContractSummaryDTO toContractSummaryDTO() {
@@ -88,6 +90,7 @@ public class Contract extends BaseUnixTimeEntity {
                 .owner_sign_y(ownerSignY)
                 .owner_sign_scale(ownerSignScale)
                 .owner_sign_url(ownerSignUrl)
+                .page_sizes(pageSize)
                 .clauses(clauses)
                 .created_at(getCreatedAt())
                 .modified_at(getModifiedAt())
