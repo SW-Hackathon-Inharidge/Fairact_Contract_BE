@@ -78,6 +78,10 @@ public class ContractCommandService {
             Contract saved = contractRepository.save(contract);
             ContractDetailDTO dto = saved.toContractDetailDTO();
 
+            String preSignedUrl = minioService.getPreSignedUrlByBucketUrl(dto.getFile_uri());
+
+            dto.setFile_uri(preSignedUrl);
+
             // 근로자가 초대된 상태에서만 실시간으로 알림 전송
             if (contract.getOwnerId().equals(userId) && contract.getIsInviteAccepted())
                 sseEmitterManager.sendToUser(saved.getWorkerId(), "contract-detail", dto);
@@ -107,6 +111,10 @@ public class ContractCommandService {
 
         Contract saved = contractRepository.save(contract);
         ContractDetailDTO dto = saved.toContractDetailDTO();
+
+        String preSignedUrl = minioService.getPreSignedUrlByBucketUrl(dto.getFile_uri());
+
+        dto.setFile_uri(preSignedUrl);
 
         // 근로자가 초대된 상태에서만 실시간으로 알림 전송
         if (contract.getOwnerId().equals(userId) && contract.getIsInviteAccepted())
@@ -138,7 +146,14 @@ public class ContractCommandService {
         contract.setWorkerName(userName);
         contract.setIsInviteAccepted(true);
 
-        return contractRepository.save(contract).toContractDetailDTO();
+        Contract saved = contractRepository.save(contract);
+        ContractDetailDTO dto = contract.toContractDetailDTO();
+
+        String preSignedUrl = minioService.getPreSignedUrlByBucketUrl(dto.getFile_uri());
+
+        dto.setFile_uri(preSignedUrl);
+
+        return dto;
     }
 
     public void updateContractEmailByContractId(String contractId, String workerEmail) {

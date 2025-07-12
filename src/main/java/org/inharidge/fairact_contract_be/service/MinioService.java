@@ -1,6 +1,7 @@
 package org.inharidge.fairact_contract_be.service;
 
 import io.minio.*;
+import io.minio.http.Method;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -8,12 +9,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
 public class MinioService {
-    @Value("${minio.public-url}")
-    private String publicUrl;
+    @Value("${minio.url}")
+    private String url;
 
     @Value("${minio.bucket}")
     private String bucket;
@@ -42,7 +44,7 @@ public class MinioService {
                     .build());
 
             // 반환할 URL 또는 경로
-            return publicUrl + "/" + bucket + "/" + objectName;
+            return url + "/" + bucket + "/" + objectName;
 
         } catch (Exception e) {
             throw new RuntimeException("Minio 업로드 실패", e);
@@ -52,7 +54,7 @@ public class MinioService {
     public void deleteFile(String fileUri) {
         try {
             String decodedUri = URLDecoder.decode(fileUri, StandardCharsets.UTF_8);
-            String prefix = publicUrl.endsWith("/") ? publicUrl : publicUrl + "/";
+            String prefix = url.endsWith("/") ? url : url + "/";
 
             if (!decodedUri.startsWith(prefix)) {
                 throw new IllegalArgumentException("MinIO URI가 잘못되었습니다.");
@@ -80,4 +82,34 @@ public class MinioService {
         }
     }
 
+    public String getPreSignedUrlByBucketUrl(String bucketUrl) {
+        try {
+            // publicUrl 기준으로 앞부분 제거
+            if (!bucketUrl.startsWith(url)) {
+                throw new IllegalArgumentException("Invalid bucketUrl: " + bucketUrl);
+            }
+
+            String path = bucketUrl.substring(url.length() + 1); // remove base url and trailing slash
+            String[] parts = path.split("/", 2); // split into bucket and object
+
+            if (parts.length != 2) {
+                throw new IllegalArgumentException("bucketUrl must be in the format: " + url + "/<bucket>/<object>");
+            }
+
+            String bucketName = parts[0];
+            String objectName = parts[1];
+
+            // Pre-signed GET URL 생성
+            return minioClient.getPresignedObjectUrl(
+                    GetPresignedObjectUrlArgs.builder()
+                            .method(Method.GET)
+                            .bucket(bucketName)
+                            .object(objectName)
+                            .expiry(1, TimeUnit.HOURS)
+                            .build());
+
+        } catch (Exception e) {
+            throw new RuntimeException("Pre-signed URL 생성 실패: " + bucketUrl, e);
+        }
+    }
 }

@@ -13,9 +13,11 @@ import java.util.List;
 public class ContractQueryService {
 
     private final ContractRepository contractRepository;
+    private final MinioService minioService;
 
-    public ContractQueryService(ContractRepository contractRepository) {
+    public ContractQueryService(ContractRepository contractRepository, MinioService minioService) {
         this.contractRepository = contractRepository;
+        this.minioService = minioService;
     }
 
     public List<ContractSummaryDTO> findRecentViewedContractByContractIdList(List<String> contractIdList) {
@@ -41,6 +43,12 @@ public class ContractQueryService {
         Contract contract = contractRepository.findById(contractId)
                 .orElseThrow(() -> new NotFoundContractException("contractId : " + contractId));
 
-        return contract.toContractDetailDTO();
+        ContractDetailDTO contractDetailDTO = contract.toContractDetailDTO();
+
+        String preSignedUrl = minioService.getPreSignedUrlByBucketUrl(contractDetailDTO.getFile_uri());
+
+        contractDetailDTO.setFile_uri(preSignedUrl);
+
+        return contractDetailDTO;
     }
 }

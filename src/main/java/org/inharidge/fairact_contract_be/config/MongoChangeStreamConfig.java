@@ -5,7 +5,9 @@ import com.mongodb.client.model.changestream.ChangeStreamDocument;
 import com.mongodb.client.model.changestream.OperationType;
 import jakarta.annotation.PostConstruct;
 import org.bson.Document;
+import org.inharidge.fairact_contract_be.dto.ContractDetailDTO;
 import org.inharidge.fairact_contract_be.entity.Contract;
+import org.inharidge.fairact_contract_be.service.MinioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.core.ChangeStreamOptions;
@@ -20,6 +22,8 @@ public class MongoChangeStreamConfig {
     private MongoTemplate mongoTemplate;
     @Autowired
     private SseEmitterManager sseEmitterManager;
+    @Autowired
+    private MinioService minioService;
 
     @PostConstruct
     public void watchClauseFieldUpdates() {
@@ -43,13 +47,18 @@ public class MongoChangeStreamConfig {
                         Document fullDoc = raw.getFullDocument();
                         if (fullDoc != null) {
                             Contract contract = convertDocumentToContract(fullDoc);
+                            ContractDetailDTO dto = contract.toContractDetailDTO();
+
+                            String preSignedUrl = minioService.getPreSignedUrlByBucketUrl(dto.getFile_uri());
+
+                            dto.setFile_uri(preSignedUrl);
 
                             System.out.println("🟡 감지된 Contract.clauses 변경: " + contract);
 
                             if (contract.getWorkerId() != null)
-                                sseEmitterManager.sendToUser(contract.getWorkerId(), "toxic-clause", contract.toContractDetailDTO());
+                                sseEmitterManager.sendToUser(contract.getWorkerId(), "toxic-clause", dto);
                             if (contract.getOwnerId() != null)
-                                sseEmitterManager.sendToUser(contract.getOwnerId(), "toxic-clause", contract.toContractDetailDTO());
+                                sseEmitterManager.sendToUser(contract.getOwnerId(), "toxic-clause", dto);
                         }
                     }
                 },
