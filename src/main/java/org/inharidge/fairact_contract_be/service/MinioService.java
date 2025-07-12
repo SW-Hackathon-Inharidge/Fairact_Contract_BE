@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
@@ -110,6 +111,29 @@ public class MinioService {
 
         } catch (Exception e) {
             throw new RuntimeException("Pre-signed URL 생성 실패: " + bucketUrl, e);
+        }
+    }
+
+    public String parsePresignedUrlToStorageUrl(String presignedUrl) {
+        try {
+            URI uri = new URI(presignedUrl);
+            String[] segments = uri.getPath().split("/", 3); // ["", "bucket", "object"]
+
+            if (segments.length != 3 || segments[1].isEmpty() || segments[2].isEmpty()) {
+                throw new IllegalArgumentException("Invalid MinIO PreSigned URL format: " + uri.getPath());
+            }
+
+            String bucket = URLDecoder.decode(segments[1], StandardCharsets.UTF_8);
+            String fullObjectName = URLDecoder.decode(segments[2], StandardCharsets.UTF_8);
+
+            // "_"로 나눈 뒤 뒤쪽만 취함 (timestamp 제거)
+            String[] objectParts = fullObjectName.split("_", 2);
+            String objectName = objectParts.length == 2 ? objectParts[1] : fullObjectName;
+
+            return url + "/" + bucket + "/" + objectName;
+
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to parse MinIO PreSigned URL: " + presignedUrl, e);
         }
     }
 }

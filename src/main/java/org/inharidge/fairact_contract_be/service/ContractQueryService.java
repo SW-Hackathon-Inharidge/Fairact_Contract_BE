@@ -43,12 +43,21 @@ public class ContractQueryService {
         Contract contract = contractRepository.findById(contractId)
                 .orElseThrow(() -> new NotFoundContractException("contractId : " + contractId));
 
-        ContractDetailDTO contractDetailDTO = contract.toContractDetailDTO();
+        ContractDetailDTO dto = contract.toContractDetailDTO();
 
-        String preSignedUrl = minioService.getPreSignedUrlByBucketUrl(contractDetailDTO.getFile_uri());
+        if (dto.getFile_uri() != null) {
+            String preSignedUrl = minioService.getPreSignedUrlByBucketUrl(dto.getFile_uri());
+            dto.setFile_uri(preSignedUrl);
+        }
+        if (dto.getWorker_sign_url() != null) {
+            String preSignedUrl = minioService.getPreSignedUrlByBucketUrl(dto.getWorker_sign_url());
+            dto.setFile_uri(preSignedUrl);
+        }
+        if (dto.getOwner_sign_url() != null) {
+            String preSignedUrl = minioService.getPreSignedUrlByBucketUrl(dto.getOwner_sign_url());
+            dto.setFile_uri(preSignedUrl);
+        }
 
-        contractDetailDTO.setFile_uri(preSignedUrl);
-
-        return contractDetailDTO;
+        return dto;
     }
 }

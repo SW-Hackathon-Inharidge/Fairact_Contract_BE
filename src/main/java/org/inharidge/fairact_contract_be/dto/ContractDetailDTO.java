@@ -1,7 +1,6 @@
 package org.inharidge.fairact_contract_be.dto;
 
 import lombok.*;
-import org.inharidge.fairact_contract_be.entity.toxic_clause.Clause;
 import org.inharidge.fairact_contract_be.entity.toxic_clause.ToxicClause;
 
 import java.util.List;
@@ -28,9 +27,11 @@ public class ContractDetailDTO {
     private Long worker_sign_x;
     private Long worker_sign_y;
     private Long worker_sign_scale;
+    private String worker_sign_url;
     private Long owner_sign_x;
     private Long owner_sign_y;
     private Long owner_sign_scale;
+    private String owner_sign_url;
     private List<ToxicClause> clauses;
     private Long created_at;
     private Long modified_at;

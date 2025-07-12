@@ -49,9 +49,18 @@ public class MongoChangeStreamConfig {
                             Contract contract = convertDocumentToContract(fullDoc);
                             ContractDetailDTO dto = contract.toContractDetailDTO();
 
-                            String preSignedUrl = minioService.getPreSignedUrlByBucketUrl(dto.getFile_uri());
-
-                            dto.setFile_uri(preSignedUrl);
+                            if (dto.getFile_uri() != null) {
+                                String preSignedUrl = minioService.getPreSignedUrlByBucketUrl(dto.getFile_uri());
+                                dto.setFile_uri(preSignedUrl);
+                            }
+                            if (dto.getWorker_sign_url() != null) {
+                                String preSignedUrl = minioService.getPreSignedUrlByBucketUrl(dto.getWorker_sign_url());
+                                dto.setFile_uri(preSignedUrl);
+                            }
+                            if (dto.getOwner_sign_url() != null) {
+                                String preSignedUrl = minioService.getPreSignedUrlByBucketUrl(dto.getOwner_sign_url());
+                                dto.setFile_uri(preSignedUrl);
+                            }
 
                             System.out.println("🟡 감지된 Contract.clauses 변경: " + contract);
 

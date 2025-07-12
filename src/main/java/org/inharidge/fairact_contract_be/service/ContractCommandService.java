@@ -97,14 +97,19 @@ public class ContractCommandService {
         Contract contract = contractRepository.findById(contractId)
                 .orElseThrow(() -> new NotFoundContractException("contractid : " + contractId));
 
+        String signUrl =
+                minioService.parsePresignedUrlToStorageUrl(contractDigitalSignRequestDTO.getPre_signed_sign_uri());
+
         if (contract.getOwnerId().equals(userId)) {
             contract.setIsOwnerSigned(true);
             contract.setOwnerSignX(contractDigitalSignRequestDTO.getSign_x());
             contract.setOwnerSignY(contractDigitalSignRequestDTO.getSign_y());
+            contract.setOwnerSignUrl(signUrl);
         } else if (contract.getWorkerId().equals(userId)) {
             contract.setIsWorkerSigned(true);
             contract.setWorkerSignX(contractDigitalSignRequestDTO.getSign_x());
             contract.setWorkerSignY(contractDigitalSignRequestDTO.getSign_y());
+            contract.setWorkerSignUrl(signUrl);
             toxicClauseService.updateToxicClausesCheckState(contractId);
         } else
             throw new UnAuthorizedContractAccessException("userId : " + userId);
@@ -112,9 +117,18 @@ public class ContractCommandService {
         Contract saved = contractRepository.save(contract);
         ContractDetailDTO dto = saved.toContractDetailDTO();
 
-        String preSignedUrl = minioService.getPreSignedUrlByBucketUrl(dto.getFile_uri());
-
-        dto.setFile_uri(preSignedUrl);
+        if (dto.getFile_uri() != null) {
+            String preSignedUrl = minioService.getPreSignedUrlByBucketUrl(dto.getFile_uri());
+            dto.setFile_uri(preSignedUrl);
+        }
+        if (dto.getWorker_sign_url() != null) {
+            String preSignedUrl = minioService.getPreSignedUrlByBucketUrl(dto.getWorker_sign_url());
+            dto.setFile_uri(preSignedUrl);
+        }
+        if (dto.getOwner_sign_url() != null) {
+            String preSignedUrl = minioService.getPreSignedUrlByBucketUrl(dto.getOwner_sign_url());
+            dto.setFile_uri(preSignedUrl);
+        }
 
         // 근로자가 초대된 상태에서만 실시간으로 알림 전송
         if (contract.getOwnerId().equals(userId) && contract.getIsInviteAccepted())
@@ -147,11 +161,20 @@ public class ContractCommandService {
         contract.setIsInviteAccepted(true);
 
         Contract saved = contractRepository.save(contract);
-        ContractDetailDTO dto = contract.toContractDetailDTO();
+        ContractDetailDTO dto = saved.toContractDetailDTO();
 
-        String preSignedUrl = minioService.getPreSignedUrlByBucketUrl(dto.getFile_uri());
-
-        dto.setFile_uri(preSignedUrl);
+        if (dto.getFile_uri() != null) {
+            String preSignedUrl = minioService.getPreSignedUrlByBucketUrl(dto.getFile_uri());
+            dto.setFile_uri(preSignedUrl);
+        }
+        if (dto.getWorker_sign_url() != null) {
+            String preSignedUrl = minioService.getPreSignedUrlByBucketUrl(dto.getWorker_sign_url());
+            dto.setFile_uri(preSignedUrl);
+        }
+        if (dto.getOwner_sign_url() != null) {
+            String preSignedUrl = minioService.getPreSignedUrlByBucketUrl(dto.getOwner_sign_url());
+            dto.setFile_uri(preSignedUrl);
+        }
 
         return dto;
     }
