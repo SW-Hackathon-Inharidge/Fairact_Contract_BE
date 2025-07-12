@@ -27,7 +27,10 @@ public class Contract extends BaseUnixTimeEntity {
     private String title;
 
     private Long ownerId;
+    private String ownerName;
     private Long workerId;
+    private String workerEmail;
+    private String workerName;
 
     private String fileUri;
     private String fileHash;
@@ -48,10 +51,15 @@ public class Contract extends BaseUnixTimeEntity {
                 .id(id)
                 .title(title)
                 .owner_id(ownerId)
+                .owner_name(ownerName)
                 .worker_id(workerId)
+                .worker_email(workerEmail)
+                .worker_name(workerName)
                 .is_worker_signed(isWorkerSigned)
                 .is_owner_signed(isOwnerSigned)
                 .is_invite_accepted(isInviteAccepted)
+                .created_at(getCreatedAt())
+                .modified_at(getModifiedAt())
                 .build();
     }
 
@@ -60,7 +68,10 @@ public class Contract extends BaseUnixTimeEntity {
                 .id(id)
                 .title(title)
                 .owner_id(ownerId)
+                .owner_name(ownerName)
                 .worker_id(workerId)
+                .worker_email(workerEmail)
+                .worker_name(workerName)
                 .is_worker_signed(isWorkerSigned)
                 .is_owner_signed(isOwnerSigned)
                 .is_invite_accepted(isInviteAccepted)
@@ -74,6 +85,8 @@ public class Contract extends BaseUnixTimeEntity {
                 .owner_sign_y(ownerSignY)
                 .owner_sign_scale(ownerSignScale)
                 .clauses(clauses)
+                .created_at(getCreatedAt())
+                .modified_at(getModifiedAt())
                 .build();
     }
 }

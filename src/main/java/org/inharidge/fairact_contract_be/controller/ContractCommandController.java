@@ -101,6 +101,8 @@ public class ContractCommandController {
             String token = AuthorizationHeaderUtil.extractToken(authHeader);
             Long userId = jwtTokenService.extractUserId(token);
 
+            contractCommandService.updateContractEmailByContractId(
+                    contractId, contractEmailSendingRequestDTO.getOpponent_email());
             contractCommandService.createEmailInfoInRedis(
                     contractId,
                     userId,
@@ -153,13 +155,14 @@ public class ContractCommandController {
             String token = AuthorizationHeaderUtil.extractToken(authHeader);
             Long userId = jwtTokenService.extractUserId(token);
             String email = jwtTokenService.extractEmail(token);
+            String name = jwtTokenService.extractName(token);
 
             if (!redisService.exists("email:" + contractId + ":" + email))
                 throw new NotFoundEmailException("Email Not Found");
             redisService.delete("email:" + contractId + ":" + email);
 
             ContractDetailDTO contractDetailDTO =
-                    contractCommandService.updateContractStateByInviteAccepted(contractId, userId);
+                    contractCommandService.updateContractStateByInviteAccepted(contractId, userId, name);
 
             return ResponseEntity.ok()
                     .body(contractDetailDTO);

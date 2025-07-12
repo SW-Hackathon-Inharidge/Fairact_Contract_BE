@@ -50,6 +50,10 @@ public class JwtTokenService {
         return validateAccessToken(token).getBody().get("email", String.class);
     }
 
+    public String extractName(String token) {
+        return validateAccessToken(token).getBody().get("name", String.class);
+    }
+
     public AuthProvider extractProvider(String token) {
         return AuthProvider.valueOf(validateAccessToken(token).getBody().get("provider", String.class));
     }

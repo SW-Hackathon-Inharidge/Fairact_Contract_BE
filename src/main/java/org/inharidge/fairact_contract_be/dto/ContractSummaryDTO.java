@@ -15,8 +15,13 @@ public class ContractSummaryDTO {
     private String id;
     private String title;
     private Long owner_id;
+    private String owner_name;
     private Long worker_id;
+    private String worker_email;
+    private String worker_name;
     private Boolean is_owner_signed;
     private Boolean is_worker_signed;
     private Boolean is_invite_accepted;
+    private Long created_at;
+    private Long modified_at;
 }

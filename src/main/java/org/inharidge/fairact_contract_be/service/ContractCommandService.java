@@ -117,16 +117,25 @@ public class ContractCommandService {
         if (redisService.exists("email:" + contractId + ":" + opponent_email))
             throw new AlreadySendEmailException("Already Email Sented, opponent_email : " + opponent_email);
 
-        redisService.save("email:" + contractId + ":" + opponent_email, contractId.toString(), 60 * 60 * 24);
+        redisService.save("email:" + contractId + ":" + opponent_email, contractId, 60 * 60 * 24);
     }
 
-    public ContractDetailDTO updateContractStateByInviteAccepted(String contractId, Long userId) {
+    public ContractDetailDTO updateContractStateByInviteAccepted(String contractId, Long userId, String userName) {
         Contract contract = contractRepository.findById(contractId)
                 .orElseThrow(() -> new NotFoundContractException("contractId : " + contractId));
 
         contract.setWorkerId(userId);
+        contract.setWorkerName(userName);
         contract.setIsInviteAccepted(true);
 
         return contractRepository.save(contract).toContractDetailDTO();
+    }
+
+    public void updateContractEmailByContractId(String contractId, String workerEmail) {
+        Contract contract = contractRepository.findById(contractId)
+                .orElseThrow(() -> new NotFoundContractException("contractId : " + contractId));
+
+        contract.setWorkerEmail(workerEmail);
+        contractRepository.save(contract);
     }
 }
