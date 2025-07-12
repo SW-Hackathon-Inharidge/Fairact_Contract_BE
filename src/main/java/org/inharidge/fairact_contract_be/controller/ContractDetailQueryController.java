@@ -33,7 +33,8 @@ public class ContractDetailQueryController {
 
         try {
             String token = AuthorizationHeaderUtil.extractToken(authHeader);
-            Long userId = jwtTokenService.extractUserId(token);
+            jwtTokenService.validateAccessToken(token);
+
             ContractDetailDTO contractDetailDTO =
                     contractQueryService.findContractDetailById(contractId);
 
