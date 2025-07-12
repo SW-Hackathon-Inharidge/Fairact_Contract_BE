@@ -1,29 +1,61 @@
 package org.inharidge.fairact_contract_be.controller;
 
 import org.inharidge.fairact_contract_be.config.SseEmitterManager;
+import org.inharidge.fairact_contract_be.dto.ContractDetailDTO;
 import org.inharidge.fairact_contract_be.exception.JwtAuthenticationException;
+import org.inharidge.fairact_contract_be.service.ContractQueryService;
 import org.inharidge.fairact_contract_be.service.JwtTokenService;
 import org.inharidge.fairact_contract_be.util.AuthorizationHeaderUtil;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @RestController
-@RequestMapping("/contract/sse")
-public class ContractDetailSseQueryController {
+@RequestMapping("/contract")
+public class ContractDetailQueryController {
     private final JwtTokenService jwtTokenService;
     private final SseEmitterManager sseEmitterManager;
+    private final ContractQueryService contractQueryService;
 
-    public ContractDetailSseQueryController(JwtTokenService jwtTokenService, SseEmitterManager sseEmitterManager) {
+    public ContractDetailQueryController(JwtTokenService jwtTokenService, SseEmitterManager sseEmitterManager, ContractQueryService contractQueryService) {
         this.jwtTokenService = jwtTokenService;
         this.sseEmitterManager = sseEmitterManager;
+        this.contractQueryService = contractQueryService;
+    }
+
+    @GetMapping("/{contractId}/detail")
+    public ResponseEntity<?> findContractDetail(
+            @PathVariable("contractId") String contractId,
+            @RequestHeader("Authorization") String authHeader) {
+
+        try {
+            String token = AuthorizationHeaderUtil.extractToken(authHeader);
+            Long userId = jwtTokenService.extractUserId(token);
+            ContractDetailDTO contractDetailDTO =
+                    contractQueryService.findContractDetailById(contractId);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Content-Type", "application/json");
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .body(contractDetailDTO);
+
+        } catch (JwtAuthenticationException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Invalid JWT: " + e.getMessage());
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Internal error: " + e.getMessage());
+        }
     }
 
     // 계약 상세 정보 API - SSE
-    @GetMapping(value = "/subscribe/detail", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @GetMapping(value = "/sse/subscribe/detail", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter findContractDetail(
             @RequestHeader(name = "Authorization") String authHeader) {
 
@@ -45,7 +77,7 @@ public class ContractDetailSseQueryController {
     }
 
     // 독소조항 검사 결과 조회 API - SSE
-    @GetMapping(value = "/subscribe/toxic-clause", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @GetMapping(value = "/sse/subscribe/toxic-clause", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter findContractToxicClause(
             @RequestHeader(name = "Authorization") String authHeader) {
 

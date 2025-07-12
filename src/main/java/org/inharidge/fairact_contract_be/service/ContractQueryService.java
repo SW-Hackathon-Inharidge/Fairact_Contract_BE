@@ -1,8 +1,10 @@
 package org.inharidge.fairact_contract_be.service;
 
+import org.inharidge.fairact_contract_be.dto.ContractDetailDTO;
 import org.inharidge.fairact_contract_be.dto.ContractSummaryDTO;
 import org.inharidge.fairact_contract_be.entity.Contract;
 import org.inharidge.fairact_contract_be.entity.ContractViewHistory;
+import org.inharidge.fairact_contract_be.exception.NotFoundContractException;
 import org.inharidge.fairact_contract_be.repository.ContractRepository;
 import org.springframework.stereotype.Service;
 
@@ -41,5 +43,12 @@ public class ContractQueryService {
         return contractRepository.findTop3HalfSignedByOwnerOrWorker(userId, userId)
                 .stream().map(Contract::toContractSummaryDTO)
                 .toList();
+    }
+
+    public ContractDetailDTO findContractDetailById(String contractId) {
+        Contract contract = contractRepository.findById(contractId)
+                .orElseThrow(() -> new NotFoundContractException("contractId : " + contractId));
+
+        return contract.toContractDetailDTO();
     }
 }
