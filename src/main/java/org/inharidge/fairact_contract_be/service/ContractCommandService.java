@@ -33,14 +33,17 @@ public class ContractCommandService {
         this.toxicClauseService = toxicClauseService;
     }
 
-    public ContractDetailDTO createContract(MultipartFile contractFile, Long userId) {
+    public ContractDetailDTO createContract(MultipartFile contractFile, Long userId, String userName) {
         try {
             String fileUri = minioService.uploadFile(contractFile);
             String fileHash = FileHashUtil.getSha1FromMultipartFile(contractFile);
             Contract contract = Contract.builder()
                     .title(FileNameUtil.extractFilename(contractFile))
                     .ownerId(userId)
+                    .ownerName(userName)
                     .workerId(null)
+                    .workerEmail(null)
+                    .workerName(null)
                     .isOwnerSigned(false)
                     .isWorkerSigned(false)
                     .isInviteAccepted(false)
@@ -72,7 +75,14 @@ public class ContractCommandService {
             contract.setIsOwnerSigned(false);
             contract.setIsWorkerSigned(false);
 
-            return contractRepository.save(contract).toContractDetailDTO();
+            Contract saved = contractRepository.save(contract);
+            ContractDetailDTO dto = saved.toContractDetailDTO();
+
+            // 근로자가 초대된 상태에서만 실시간으로 알림 전송
+            if (contract.getOwnerId().equals(userId) && contract.getIsInviteAccepted())
+                sseEmitterManager.sendToUser(saved.getWorkerId(), "contract-detail", dto);
+
+            return dto;
 
         } catch (IOException e) {
             throw new InvalidFileHashException("Invalid file hash operation");
@@ -98,10 +108,10 @@ public class ContractCommandService {
         Contract saved = contractRepository.save(contract);
         ContractDetailDTO dto = saved.toContractDetailDTO();
 
-        // 계약 소유자와 근로자에게 실시간 알림 전송
+        // 근로자가 초대된 상태에서만 실시간으로 알림 전송
         if (contract.getOwnerId().equals(userId) && contract.getIsInviteAccepted())
             sseEmitterManager.sendToUser(saved.getWorkerId(), "contract-detail", dto);
-        // 근로자가 초대된 상태에서만 실시간으로 알림 전송
+        // 계약 소유자와 근로자에게 실시간 알림 전송
         if (contract.getWorkerId().equals(userId))
             sseEmitterManager.sendToUser(saved.getOwnerId(), "contract-detail", dto);
 

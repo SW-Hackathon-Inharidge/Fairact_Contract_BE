@@ -54,7 +54,9 @@ public class ContractUploadController {
             String token = AuthorizationHeaderUtil.extractToken(authHeader);
 
             Long userId = jwtTokenService.extractUserId(token);
-            ContractDetailDTO contractDetailDTO = contractCommandService.createContract(contractFile, userId);
+            String userName = jwtTokenService.extractName(token);
+            ContractDetailDTO contractDetailDTO =
+                    contractCommandService.createContract(contractFile, userId, userName);
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("Content-Type", "application/json");
