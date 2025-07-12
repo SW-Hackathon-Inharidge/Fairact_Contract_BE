@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.inharidge.fairact_contract_be.dto.ContractSummaryDTO;
+import org.inharidge.fairact_contract_be.dto.request.ContractIdListRequestDTO;
 import org.inharidge.fairact_contract_be.exception.JwtAuthenticationException;
 import org.inharidge.fairact_contract_be.service.ContractQueryService;
 import org.inharidge.fairact_contract_be.service.JwtTokenService;
@@ -14,10 +15,7 @@ import org.inharidge.fairact_contract_be.util.AuthorizationHeaderUtil;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -44,15 +42,18 @@ public class ContractListQueryController {
             @ApiResponse(responseCode = "401", description = "JWT 인증 실패"),
             @ApiResponse(responseCode = "500", description = "서버 내부 오류")
     })
-    @GetMapping("/recent")
+    @PostMapping("/recent")
     public ResponseEntity<?> findRecent3Contracts(
-            @RequestHeader(name = "Authorization") String authHeader) {
+            @RequestHeader(name = "Authorization") String authHeader,
+            @RequestBody ContractIdListRequestDTO contractIdListRequestDTO) {
 
         try {
             String token = AuthorizationHeaderUtil.extractToken(authHeader);
-            Long userId = jwtTokenService.extractUserId(token);
+            jwtTokenService.validateAccessToken(token);
+
             List<ContractSummaryDTO> contractSummaryDTOList =
-                    contractQueryService.findRecentViewedContractByUserId(userId);
+                    contractQueryService.findRecentViewedContractByContractIdList(
+                            contractIdListRequestDTO.getContractIdList());
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("Content-Type", "application/json");
