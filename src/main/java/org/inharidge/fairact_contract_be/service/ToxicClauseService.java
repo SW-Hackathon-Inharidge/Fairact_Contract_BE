@@ -25,11 +25,13 @@ public class ToxicClauseService {
                         .orElseThrow(() -> new NotFoundContractException("contractId : " + contractId))
                         .getClauses();
 
-        for (ToxicClause toxicClause : toxicClauses) {
-            toxicClause.setIsChecked(true);
-            toxicClause.setCheckedAt(Instant.now().getEpochSecond());
-        }
+        if(toxicClauses != null) {
+            for (ToxicClause toxicClause : toxicClauses) {
+                toxicClause.setIsChecked(true);
+                toxicClause.setCheckedAt(Instant.now().getEpochSecond());
+            }
 
-        toxicClauseRepository.saveAll(toxicClauses);
+            toxicClauseRepository.saveAll(toxicClauses);
+        }
     }
 }
