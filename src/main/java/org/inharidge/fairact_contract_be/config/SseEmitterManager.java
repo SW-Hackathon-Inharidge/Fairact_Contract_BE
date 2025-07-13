@@ -7,6 +7,9 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 @Component
 public class SseEmitterManager {
@@ -23,6 +26,18 @@ public class SseEmitterManager {
 
         emitterMap.computeIfAbsent(userId, id -> new ConcurrentHashMap<>())
                 .put(eventType, emitter);
+
+        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+        scheduler.scheduleAtFixedRate(() -> {
+            try {
+                emitter.send(SseEmitter.event()
+                        .name("keep-alive")
+                        .data("ping"));
+            } catch (IOException e) {
+                emitter.complete();
+                scheduler.shutdown(); // 연결이 끊기면 종료
+            }
+        }, 0, 30, TimeUnit.SECONDS);
 
         return emitter;
     }
