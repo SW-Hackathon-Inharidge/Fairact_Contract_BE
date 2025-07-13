@@ -91,7 +91,7 @@ public class ContractCommandService {
             contract.setWorkerSignPage(null);
             contract.setWorkerSignUrl(null);
 
-            contract.setPageSize(List.of());
+            contract.setPageSizes(List.of());
             contract.setClauses(List.of());
 
             Contract saved = contractRepository.save(contract);

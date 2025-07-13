@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.NoArgsConstructor;
 
 import lombok.*;
+import org.inharidge.fairact_contract_be.dto.clause.ToxicClauseDTO;
 
 import java.util.List;
 
@@ -25,4 +26,17 @@ public class ToxicClause {
 
     private Long checkedAt;    // nullable
     private Boolean isChecked;
+
+    public ToxicClauseDTO toToxicClauseDTO() {
+        return ToxicClauseDTO.builder()
+                .id(id)
+                .text(text)
+                .segment_positions(segmentPositions.stream().map(SegmentPosition::toSegmentPositionDTO).toList())
+                .reason_type(reasonType)
+                .reason(reason)
+                .suggestion(suggestion)
+                .checked_at(checkedAt)
+                .is_checked(isChecked)
+                .build();
+    }
 }

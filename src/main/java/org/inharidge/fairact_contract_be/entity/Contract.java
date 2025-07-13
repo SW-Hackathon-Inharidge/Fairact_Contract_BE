@@ -49,7 +49,7 @@ public class Contract extends BaseUnixTimeEntity {
     private Long ownerSignPage;
     private String ownerSignUrl;
 
-    private List<PageSize> pageSize;
+    private List<PageSize> pageSizes;
     private List<ToxicClause> clauses;
 
     public ContractSummaryDTO toContractSummaryDTO() {
@@ -94,8 +94,8 @@ public class Contract extends BaseUnixTimeEntity {
                 .owner_sign_scale(ownerSignScale)
                 .owner_sign_page(ownerSignPage)
                 .owner_sign_url(ownerSignUrl)
-                .page_sizes(pageSize)
-                .clauses(clauses)
+                .page_sizes(pageSizes.stream().map(PageSize::toPageSizeDTO).toList())
+                .clauses(clauses.stream().map(ToxicClause::toToxicClauseDTO).toList())
                 .created_at(getCreatedAt())
                 .modified_at(getModifiedAt())
                 .build();
