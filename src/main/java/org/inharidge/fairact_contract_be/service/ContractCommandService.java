@@ -102,7 +102,7 @@ public class ContractCommandService {
             dto.setFile_uri(preSignedUrl);
 
             // 근로자가 초대된 상태에서만 실시간으로 알림 전송
-            if (contract.getOwnerId().equals(userId) && contract.getIsInviteAccepted())
+            if (contract.getOwnerId() != null && contract.getOwnerId().equals(userId) && contract.getIsInviteAccepted())
                 sseEmitterManager.sendToUser(saved.getWorkerId(), "contract-detail", dto);
 
             return dto;
@@ -196,6 +196,10 @@ public class ContractCommandService {
             String preSignedUrl = minioService.getPreSignedUrlByBucketUrl(dto.getOwner_sign_url());
             dto.setOwner_sign_url(preSignedUrl);
         }
+
+        // 근로자에게 초대 수락했을 때, 고용주에게 실시간 알림 전송
+        if (contract.getWorkerId() != null && contract.getWorkerId().equals(userId))
+            sseEmitterManager.sendToUser(saved.getOwnerId(), "contract-detail", dto);
 
         return dto;
     }
