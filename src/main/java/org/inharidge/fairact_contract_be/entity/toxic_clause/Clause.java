@@ -9,7 +9,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class SegmentPosition {
-    private int page_index;
-    private List<Vertex> vertices;
+public class Clause {
+    private Long id;
+    private String text;
+    private List<SegmentPosition> segment_positions;
 }

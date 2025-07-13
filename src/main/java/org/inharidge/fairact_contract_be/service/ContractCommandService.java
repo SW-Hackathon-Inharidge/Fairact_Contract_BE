@@ -43,17 +43,17 @@ public class ContractCommandService {
             String fileHash = FileHashUtil.getSha1FromMultipartFile(contractFile);
             Contract contract = Contract.builder()
                     .title(FileNameUtil.extractFilename(contractFile))
-                    .ownerId(userId)
-                    .ownerName(userName)
-                    .workerId(null)
-                    .workerEmail(null)
-                    .workerName(null)
-                    .isOwnerSigned(false)
-                    .isWorkerSigned(false)
-                    .isInviteAccepted(false)
-                    .fileUri(fileUri)
-                    .fileHash(fileHash)
-                    .fileProcessed(false)
+                    .owner_id(userId)
+                    .owner_name(userName)
+                    .worker_id(null)
+                    .worker_email(null)
+                    .worker_name(null)
+                    .is_owner_signed(false)
+                    .is_worker_signed(false)
+                    .is_invite_accepted(false)
+                    .file_uri(fileUri)
+                    .file_hash(fileHash)
+                    .file_processed(false)
                     .build();
 
             return contractRepository.save(contract).toContractDetailDTO();
@@ -67,31 +67,31 @@ public class ContractCommandService {
         try {
             Contract contract = contractRepository.findById(contractId)
                     .orElseThrow(() -> new NotFoundContractException("contractId : " + contractId));
-            if (!contract.getOwnerId().equals(userId))
+            if (!contract.getOwner_id().equals(userId))
                 throw new UnAuthorizedContractAccessException("userId : " + userId);
-            minioService.deleteFile(contract.getFileUri());
+            minioService.deleteFile(contract.getFile_uri());
             String newFileUri = minioService.uploadFile(newContractFile);
             String fileHash = FileHashUtil.getSha1FromMultipartFile(newContractFile);
 
-            contract.setFileUri(newFileUri);
-            contract.setFileHash(fileHash);
-            contract.setFileProcessed(false);
-            contract.setIsOwnerSigned(false);
-            contract.setIsWorkerSigned(false);
+            contract.setFile_uri(newFileUri);
+            contract.setFile_hash(fileHash);
+            contract.setFile_processed(false);
+            contract.setIs_owner_signed(false);
+            contract.setIs_worker_signed(false);
 
-            contract.setOwnerSignX(null);
-            contract.setOwnerSignY(null);
-            contract.setOwnerSignScale(null);
-            contract.setOwnerSignPage(null);
-            contract.setOwnerSignUrl(null);
+            contract.setOwner_sign_x(null);
+            contract.setOwner_sign_y(null);
+            contract.setOwner_sign_scale(null);
+            contract.setOwner_sign_page(null);
+            contract.setOwner_sign_url(null);
 
-            contract.setWorkerSignX(null);
-            contract.setWorkerSignY(null);
-            contract.setWorkerSignScale(null);
-            contract.setWorkerSignPage(null);
-            contract.setWorkerSignUrl(null);
+            contract.setWorker_sign_x(null);
+            contract.setWorker_sign_y(null);
+            contract.setWorker_sign_scale(null);
+            contract.setWorker_sign_page(null);
+            contract.setWorker_sign_url(null);
 
-            contract.setPageSizes(List.of());
+            contract.setPage_sizes(List.of());
             contract.setClauses(List.of());
 
             Contract saved = contractRepository.save(contract);
@@ -102,8 +102,8 @@ public class ContractCommandService {
             dto.setFile_uri(preSignedUrl);
 
             // 근로자가 초대된 상태에서만 실시간으로 알림 전송
-            if (contract.getOwnerId() != null && contract.getOwnerId().equals(userId) && contract.getIsInviteAccepted())
-                sseEmitterManager.sendToUser(saved.getWorkerId(), "contract-detail", dto);
+            if (contract.getOwner_id() != null && contract.getOwner_id().equals(userId) && contract.getIs_invite_accepted())
+                sseEmitterManager.sendToUser(saved.getWorker_id(), "contract-detail", dto);
 
             return dto;
 
@@ -119,18 +119,18 @@ public class ContractCommandService {
         String signUrl =
                 minioService.parsePresignedUrlToStorageUrl(contractDigitalSignRequestDTO.getPre_signed_sign_uri());
 
-        if (contract.getOwnerId() != null && contract.getOwnerId().equals(userId)) {
-            contract.setIsOwnerSigned(true);
-            contract.setOwnerSignX(contractDigitalSignRequestDTO.getSign_x());
-            contract.setOwnerSignY(contractDigitalSignRequestDTO.getSign_y());
-            contract.setOwnerSignPage(contractDigitalSignRequestDTO.getSign_page());
-            contract.setOwnerSignUrl(signUrl);
-        } else if (contract.getWorkerId() != null && contract.getWorkerId().equals(userId)) {
-            contract.setIsWorkerSigned(true);
-            contract.setWorkerSignX(contractDigitalSignRequestDTO.getSign_x());
-            contract.setWorkerSignY(contractDigitalSignRequestDTO.getSign_y());
-            contract.setWorkerSignPage(contractDigitalSignRequestDTO.getSign_page());
-            contract.setWorkerSignUrl(signUrl);
+        if (contract.getOwner_id() != null && contract.getOwner_id().equals(userId)) {
+            contract.setIs_owner_signed(true);
+            contract.setOwner_sign_x(contractDigitalSignRequestDTO.getSign_x());
+            contract.setOwner_sign_y(contractDigitalSignRequestDTO.getSign_y());
+            contract.setOwner_sign_scale(contractDigitalSignRequestDTO.getSign_page());
+            contract.setOwner_sign_url(signUrl);
+        } else if (contract.getWorker_id() != null && contract.getWorker_id().equals(userId)) {
+            contract.setIs_worker_signed(true);
+            contract.setWorker_sign_x(contractDigitalSignRequestDTO.getSign_x());
+            contract.setWorker_sign_y(contractDigitalSignRequestDTO.getSign_y());
+            contract.setWorker_sign_page(contractDigitalSignRequestDTO.getSign_page());
+            contract.setWorker_sign_url(signUrl);
             toxicClauseService.updateToxicClausesCheckState(contractId);
         } else
             throw new UnAuthorizedContractAccessException("userId : " + userId);
@@ -152,11 +152,11 @@ public class ContractCommandService {
         }
 
         // 근로자가 초대된 상태에서만 실시간으로 알림 전송
-        if (contract.getOwnerId() != null && contract.getOwnerId().equals(userId) && contract.getIsInviteAccepted())
-            sseEmitterManager.sendToUser(saved.getWorkerId(), "contract-detail", dto);
+        if (contract.getOwner_id() != null && contract.getOwner_id().equals(userId) && contract.getIs_invite_accepted())
+            sseEmitterManager.sendToUser(saved.getWorker_id(), "contract-detail", dto);
         // 근로자에게 서명했을 때, 고용주에게 서명함을 실시간 알림 전송
-        if (contract.getWorkerId() != null && contract.getWorkerId().equals(userId))
-            sseEmitterManager.sendToUser(saved.getOwnerId(), "contract-detail", dto);
+        if (contract.getWorker_id() != null && contract.getWorker_id().equals(userId))
+            sseEmitterManager.sendToUser(saved.getOwner_id(), "contract-detail", dto);
 
         return dto;
     }
@@ -164,7 +164,7 @@ public class ContractCommandService {
     public void createEmailInfoInRedis(String contractId, Long userId, String opponent_email) {
         if (!contractRepository.findById(contractId)
                 .orElseThrow(() -> new NotFoundContractException("contractId : " + contractId))
-                .getOwnerId().equals(userId))
+                .getOwner_id().equals(userId))
             throw new UnAuthorizedContractAccessException("userId : " + userId);
 
         if (redisService.exists("email:" + contractId + ":" + opponent_email))
@@ -177,9 +177,9 @@ public class ContractCommandService {
         Contract contract = contractRepository.findById(contractId)
                 .orElseThrow(() -> new NotFoundContractException("contractId : " + contractId));
 
-        contract.setWorkerId(userId);
-        contract.setWorkerName(userName);
-        contract.setIsInviteAccepted(true);
+        contract.setWorker_id(userId);
+        contract.setWorker_name(userName);
+        contract.setIs_invite_accepted(true);
 
         Contract saved = contractRepository.save(contract);
         ContractDetailDTO dto = saved.toContractDetailDTO();
@@ -198,8 +198,8 @@ public class ContractCommandService {
         }
 
         // 근로자에게 초대 수락했을 때, 고용주에게 실시간 알림 전송
-        if (contract.getWorkerId() != null && contract.getWorkerId().equals(userId))
-            sseEmitterManager.sendToUser(saved.getOwnerId(), "contract-detail", dto);
+        if (contract.getWorker_id() != null && contract.getWorker_id().equals(userId))
+            sseEmitterManager.sendToUser(saved.getOwner_id(), "contract-detail", dto);
 
         return dto;
     }
@@ -208,7 +208,7 @@ public class ContractCommandService {
         Contract contract = contractRepository.findById(contractId)
                 .orElseThrow(() -> new NotFoundContractException("contractId : " + contractId));
 
-        contract.setWorkerEmail(workerEmail);
+        contract.setWorker_email(workerEmail);
         contractRepository.save(contract);
     }
 }

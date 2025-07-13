@@ -12,18 +12,20 @@ public interface ContractRepository extends MongoRepository<Contract, String> {
 
     // 🔹 조건: (ownerId == ?0 AND isOwnerSigned == false) OR (workerId == ?1 AND isWorkerSigned == false)
     @Query(value = "{$or: [ " +
-            "{ $and: [ { ownerId: ?0 }, { isOwnerSigned: false } ] }, " +
-            "{ $and: [ { workerId: ?1 }, { isWorkerSigned: false } ] } " +
+            "{ $and: [ { owner_id: ?0 }, { is_owner_signed: false } ] }, " +
+            "{ $and: [ { worker_id: ?1 }, { is_worker_signed: false } ] } " +
             "] }", sort = "{ id: -1 }")
     List<Contract> findTop3UnsignedByOwnerOrWorker(Long ownerId, Long workerId);
 
     // 🔹 조건: (ownerId == ?0 AND isOwnerSigned == true AND isWorkerSigned == false)
     //         OR (workerId == ?1 AND isWorkerSigned == true AND isOwnerSigned == false)
     @Query(value = "{$or: [ " +
-            "{ $and: [ { ownerId: ?0 }, { isOwnerSigned: true }, { isWorkerSigned: false } ] }, " +
-            "{ $and: [ { workerId: ?1 }, { isWorkerSigned: true }, { isOwnerSigned: false } ] } " +
+            "{ $and: [ { owner_id: ?0 }, { is_owner_signed: true }, { is_worker_signed: false } ] }, " +
+            "{ $and: [ { worker_id: ?1 }, { is_worker_signed: true }, { is_owner_signed: false } ] } " +
             "] }", sort = "{ id: -1 }")
     List<Contract> findTop3HalfSignedByOwnerOrWorker(Long ownerId, Long workerId);
 
-    List<Contract> findByOwnerId(Long ownerId);
+    @Query("{ 'owner_id': ?0 }")
+    List<Contract> findByOwnerIdCustom(Long ownerId);
+
 }

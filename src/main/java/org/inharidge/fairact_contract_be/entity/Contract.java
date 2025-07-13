@@ -21,49 +21,50 @@ public class Contract extends BaseUnixTimeEntity {
     @Id
     private String id;
 
-    private Boolean isOwnerSigned;
-    private Boolean isWorkerSigned;
-    private Boolean isInviteAccepted;
-
     private String title;
 
-    private Long ownerId;
-    private String ownerName;
-    private Long workerId;
-    private String workerEmail;
-    private String workerName;
+    private Long owner_id;
+    private String owner_name;
 
-    private String fileUri;
-    private String fileHash;
-    private Boolean fileProcessed;
+    private Long worker_id;
+    private String worker_email;
+    private String worker_name;
 
-    private Long workerSignX;
-    private Long workerSignY;
-    private Long workerSignScale;
-    private Long workerSignPage;
-    private String workerSignUrl;
+    private Boolean is_owner_signed;
+    private Boolean is_worker_signed;
+    private Boolean is_invite_accepted;
 
-    private Long ownerSignX;
-    private Long ownerSignY;
-    private Long ownerSignScale;
-    private Long ownerSignPage;
-    private String ownerSignUrl;
+    private String file_uri;
+    private String file_hash;
+    private Boolean file_processed;
 
-    private List<PageSize> pageSizes;
+    private Long worker_sign_x;
+    private Long worker_sign_y;
+    private Long worker_sign_scale;
+    private Long worker_sign_page;
+    private String worker_sign_url;
+
+    private Long owner_sign_x;
+    private Long owner_sign_y;
+    private Long owner_sign_scale;
+    private Long owner_sign_page;
+    private String owner_sign_url;
+
+    private List<PageSize> page_sizes;
     private List<ToxicClause> clauses;
 
     public ContractSummaryDTO toContractSummaryDTO() {
         return ContractSummaryDTO.builder()
                 .id(id)
                 .title(title)
-                .owner_id(ownerId)
-                .owner_name(ownerName)
-                .worker_id(workerId)
-                .worker_email(workerEmail)
-                .worker_name(workerName)
-                .is_worker_signed(isWorkerSigned)
-                .is_owner_signed(isOwnerSigned)
-                .is_invite_accepted(isInviteAccepted)
+                .owner_id(owner_id)
+                .owner_name(owner_name)
+                .worker_id(worker_id)
+                .worker_email(worker_email)
+                .worker_name(worker_name)
+                .is_worker_signed(is_worker_signed)
+                .is_owner_signed(is_owner_signed)
+                .is_invite_accepted(is_invite_accepted)
                 .created_at(getCreatedAt())
                 .modified_at(getModifiedAt())
                 .build();
@@ -73,29 +74,29 @@ public class Contract extends BaseUnixTimeEntity {
         return ContractDetailDTO.builder()
                 .id(id)
                 .title(title)
-                .owner_id(ownerId)
-                .owner_name(ownerName)
-                .worker_id(workerId)
-                .worker_email(workerEmail)
-                .worker_name(workerName)
-                .is_worker_signed(isWorkerSigned)
-                .is_owner_signed(isOwnerSigned)
-                .is_invite_accepted(isInviteAccepted)
-                .file_uri(fileUri)
-                .file_hash(fileHash)
-                .file_processed(fileProcessed)
-                .worker_sign_x(workerSignX)
-                .worker_sign_y(workerSignY)
-                .worker_sign_scale(workerSignScale)
-                .worker_sign_page(workerSignPage)
-                .worker_sign_url(workerSignUrl)
-                .owner_sign_x(ownerSignX)
-                .owner_sign_y(ownerSignY)
-                .owner_sign_scale(ownerSignScale)
-                .owner_sign_page(ownerSignPage)
-                .owner_sign_url(ownerSignUrl)
-                .page_sizes(pageSizes.stream().map(PageSize::toPageSizeDTO).toList())
-                .clauses(clauses.stream().map(ToxicClause::toToxicClauseDTO).toList())
+                .owner_id(owner_id)
+                .owner_name(owner_name)
+                .worker_id(worker_id)
+                .worker_email(worker_email)
+                .worker_name(worker_name)
+                .is_worker_signed(is_worker_signed)
+                .is_owner_signed(is_owner_signed)
+                .is_invite_accepted(is_invite_accepted)
+                .file_uri(file_uri)
+                .file_hash(file_hash)
+                .file_processed(file_processed)
+                .worker_sign_x(worker_sign_x)
+                .worker_sign_y(worker_sign_y)
+                .worker_sign_scale(worker_sign_scale)
+                .worker_sign_page(worker_sign_page)
+                .worker_sign_url(worker_sign_url)
+                .owner_sign_x(owner_sign_x)
+                .owner_sign_y(owner_sign_y)
+                .owner_sign_scale(owner_sign_scale)
+                .owner_sign_page(owner_sign_page)
+                .owner_sign_url(owner_sign_url)
+                .page_sizes(page_sizes)
+                .clauses(clauses)
                 .created_at(getCreatedAt())
                 .modified_at(getModifiedAt())
                 .build();

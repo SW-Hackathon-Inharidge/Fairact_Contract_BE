@@ -23,8 +23,8 @@ public class ToxicClauseService {
 
         if(contract.getClauses() != null) {
             for (ToxicClause toxicClause : contract.getClauses()) {
-                toxicClause.setIsChecked(true);
-                toxicClause.setCheckedAt(Instant.now().getEpochSecond());
+                toxicClause.setIs_checked(true);
+                toxicClause.setChecked_at(Instant.now().getEpochSecond());
             }
 
             contractRepository.save(contract);

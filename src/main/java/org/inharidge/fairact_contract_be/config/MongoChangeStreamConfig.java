@@ -64,10 +64,10 @@ public class MongoChangeStreamConfig {
 
                             System.out.println("🟡 감지된 Contract.clauses 변경: " + contract);
 
-                            if (contract.getWorkerId() != null)
-                                sseEmitterManager.sendToUser(contract.getWorkerId(), "toxic-clause", dto);
-                            if (contract.getOwnerId() != null)
-                                sseEmitterManager.sendToUser(contract.getOwnerId(), "toxic-clause", dto);
+                            if (contract.getWorker_id() != null)
+                                sseEmitterManager.sendToUser(contract.getWorker_id(), "toxic-clause", dto);
+                            if (contract.getOwner_id() != null)
+                                sseEmitterManager.sendToUser(contract.getOwner_id(), "toxic-clause", dto);
                         }
                     }
                 },

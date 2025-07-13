@@ -1,8 +1,6 @@
 package org.inharidge.fairact_contract_be.dto;
 
 import lombok.*;
-import org.inharidge.fairact_contract_be.dto.clause.PageSizeDTO;
-import org.inharidge.fairact_contract_be.dto.clause.ToxicClauseDTO;
 import org.inharidge.fairact_contract_be.entity.page_size.PageSize;
 import org.inharidge.fairact_contract_be.entity.toxic_clause.ToxicClause;
 
@@ -37,8 +35,8 @@ public class ContractDetailDTO {
     private Long owner_sign_scale;
     private Long owner_sign_page;
     private String owner_sign_url;
-    private List<PageSizeDTO> page_sizes;
-    private List<ToxicClauseDTO> clauses;
+    private List<PageSize> page_sizes;
+    private List<ToxicClause> clauses;
     private Long created_at;
     private Long modified_at;
 }
