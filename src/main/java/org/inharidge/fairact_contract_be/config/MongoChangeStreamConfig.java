@@ -55,11 +55,11 @@ public class MongoChangeStreamConfig {
                             }
                             if (dto.getWorker_sign_url() != null) {
                                 String preSignedUrl = minioService.getPreSignedUrlByBucketUrl(dto.getWorker_sign_url());
-                                dto.setFile_uri(preSignedUrl);
+                                dto.setWorker_sign_url(preSignedUrl);
                             }
                             if (dto.getOwner_sign_url() != null) {
                                 String preSignedUrl = minioService.getPreSignedUrlByBucketUrl(dto.getOwner_sign_url());
-                                dto.setFile_uri(preSignedUrl);
+                                dto.setOwner_sign_url(preSignedUrl);
                             }
 
                             System.out.println("🟡 감지된 Contract.clauses 변경: " + contract);

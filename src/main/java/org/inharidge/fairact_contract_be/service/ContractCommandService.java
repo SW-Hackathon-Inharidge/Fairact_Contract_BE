@@ -4,6 +4,8 @@ import org.inharidge.fairact_contract_be.config.SseEmitterManager;
 import org.inharidge.fairact_contract_be.dto.ContractDetailDTO;
 import org.inharidge.fairact_contract_be.dto.request.ContractDigitalSignRequestDTO;
 import org.inharidge.fairact_contract_be.entity.Contract;
+import org.inharidge.fairact_contract_be.entity.page_size.PageSize;
+import org.inharidge.fairact_contract_be.entity.toxic_clause.ToxicClause;
 import org.inharidge.fairact_contract_be.exception.AlreadySendEmailException;
 import org.inharidge.fairact_contract_be.exception.InvalidFileHashException;
 import org.inharidge.fairact_contract_be.exception.NotFoundContractException;
@@ -15,6 +17,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Objects;
 
 @Service
 public class ContractCommandService {
@@ -75,6 +79,21 @@ public class ContractCommandService {
             contract.setIsOwnerSigned(false);
             contract.setIsWorkerSigned(false);
 
+            contract.setOwnerSignX(null);
+            contract.setOwnerSignY(null);
+            contract.setOwnerSignScale(null);
+            contract.setOwnerSignPage(null);
+            contract.setOwnerSignUrl(null);
+
+            contract.setWorkerSignX(null);
+            contract.setWorkerSignY(null);
+            contract.setWorkerSignScale(null);
+            contract.setWorkerSignPage(null);
+            contract.setWorkerSignUrl(null);
+
+            contract.setPageSize(List.of());
+            contract.setClauses(List.of());
+
             Contract saved = contractRepository.save(contract);
             ContractDetailDTO dto = saved.toContractDetailDTO();
 
@@ -104,11 +123,13 @@ public class ContractCommandService {
             contract.setIsOwnerSigned(true);
             contract.setOwnerSignX(contractDigitalSignRequestDTO.getSign_x());
             contract.setOwnerSignY(contractDigitalSignRequestDTO.getSign_y());
+            contract.setOwnerSignPage(contractDigitalSignRequestDTO.getSign_page());
             contract.setOwnerSignUrl(signUrl);
         } else if (contract.getWorkerId() != null && contract.getWorkerId().equals(userId)) {
             contract.setIsWorkerSigned(true);
             contract.setWorkerSignX(contractDigitalSignRequestDTO.getSign_x());
             contract.setWorkerSignY(contractDigitalSignRequestDTO.getSign_y());
+            contract.setWorkerSignPage(contractDigitalSignRequestDTO.getSign_page());
             contract.setWorkerSignUrl(signUrl);
             toxicClauseService.updateToxicClausesCheckState(contractId);
         } else
@@ -123,18 +144,18 @@ public class ContractCommandService {
         }
         if (dto.getWorker_sign_url() != null) {
             String preSignedUrl = minioService.getPreSignedUrlByBucketUrl(dto.getWorker_sign_url());
-            dto.setFile_uri(preSignedUrl);
+            dto.setWorker_sign_url(preSignedUrl);
         }
         if (dto.getOwner_sign_url() != null) {
             String preSignedUrl = minioService.getPreSignedUrlByBucketUrl(dto.getOwner_sign_url());
-            dto.setFile_uri(preSignedUrl);
+            dto.setOwner_sign_url(preSignedUrl);
         }
 
         // 근로자가 초대된 상태에서만 실시간으로 알림 전송
-        if (contract.getOwnerId().equals(userId) && contract.getIsInviteAccepted())
+        if (contract.getOwnerId() != null && contract.getOwnerId().equals(userId) && contract.getIsInviteAccepted())
             sseEmitterManager.sendToUser(saved.getWorkerId(), "contract-detail", dto);
-        // 계약 소유자와 근로자에게 실시간 알림 전송
-        if (contract.getWorkerId().equals(userId))
+        // 근로자에게 서명했을 때, 고용주에게 서명함을 실시간 알림 전송
+        if (contract.getWorkerId() != null && contract.getWorkerId().equals(userId))
             sseEmitterManager.sendToUser(saved.getOwnerId(), "contract-detail", dto);
 
         return dto;
@@ -169,11 +190,11 @@ public class ContractCommandService {
         }
         if (dto.getWorker_sign_url() != null) {
             String preSignedUrl = minioService.getPreSignedUrlByBucketUrl(dto.getWorker_sign_url());
-            dto.setFile_uri(preSignedUrl);
+            dto.setWorker_sign_url(preSignedUrl);
         }
         if (dto.getOwner_sign_url() != null) {
             String preSignedUrl = minioService.getPreSignedUrlByBucketUrl(dto.getOwner_sign_url());
-            dto.setFile_uri(preSignedUrl);
+            dto.setOwner_sign_url(preSignedUrl);
         }
 
         return dto;

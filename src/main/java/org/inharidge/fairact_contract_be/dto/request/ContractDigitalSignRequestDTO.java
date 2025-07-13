@@ -12,5 +12,6 @@ import lombok.Setter;
 public class ContractDigitalSignRequestDTO {
     private Long sign_x;
     private Long sign_y;
+    private Long sign_page;
     private String pre_signed_sign_uri;
 }

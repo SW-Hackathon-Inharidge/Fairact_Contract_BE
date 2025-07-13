@@ -60,6 +60,7 @@ public class ContractDetailQueryController {
     public SseEmitter findContractDetail(
             @RequestHeader(name = "Authorization") String authHeader) {
 
+        System.out.println(authHeader);
         try {
             String token = AuthorizationHeaderUtil.extractToken(authHeader);
             Long userId = jwtTokenService.extractUserId(token);
@@ -82,6 +83,7 @@ public class ContractDetailQueryController {
     public SseEmitter findContractToxicClause(
             @RequestHeader(name = "Authorization") String authHeader) {
 
+        System.out.println(authHeader);
         try {
             String token = AuthorizationHeaderUtil.extractToken(authHeader);
             Long userId = jwtTokenService.extractUserId(token);
