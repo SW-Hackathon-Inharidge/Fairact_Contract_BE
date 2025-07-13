@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -25,8 +26,16 @@ public class MinioService {
 
     public String uploadFile(MultipartFile file) {
         try {
+            // 원래 확장자 추출
+            String originalFilename = file.getOriginalFilename();
+            String extension = "";
 
-            String objectName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+            if (originalFilename != null && originalFilename.contains(".")) {
+                extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+            }
+
+            // 랜덤 UUID로 파일 이름 생성 + 확장자 유지
+            String objectName = UUID.randomUUID().toString() + extension;
 
             // 버킷이 없으면 생성
             boolean isExist = minioClient.bucketExists(BucketExistsArgs.builder()
@@ -44,7 +53,7 @@ public class MinioService {
                     .contentType(file.getContentType())
                     .build());
 
-            // 반환할 URL 또는 경로
+            // 반환할 URL
             return url + "/" + bucket + "/" + objectName;
 
         } catch (Exception e) {
@@ -126,11 +135,11 @@ public class MinioService {
             String bucket = URLDecoder.decode(segments[1], StandardCharsets.UTF_8);
             String fullObjectName = URLDecoder.decode(segments[2], StandardCharsets.UTF_8);
 
-            // "_"로 나눈 뒤 뒤쪽만 취함 (timestamp 제거)
-            String[] objectParts = fullObjectName.split("_", 2);
-            String objectName = objectParts.length == 2 ? objectParts[1] : fullObjectName;
+//            // "_"로 나눈 뒤 뒤쪽만 취함 (timestamp 제거)
+//            String[] objectParts = fullObjectName.split("_", 2);
+//            String objectName = objectParts.length == 2 ? objectParts[1] : fullObjectName;
 
-            return url + "/" + bucket + "/" + objectName;
+            return url + "/" + bucket + "/" + fullObjectName;
 
         } catch (Exception e) {
             throw new RuntimeException("Failed to parse MinIO PreSigned URL: " + presignedUrl, e);
