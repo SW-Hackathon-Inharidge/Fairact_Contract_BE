@@ -28,10 +28,12 @@ public class ContractDetailDTO {
     private Long worker_sign_x;
     private Long worker_sign_y;
     private Long worker_sign_scale;
+    private Long worker_sign_page;
     private String worker_sign_url;
     private Long owner_sign_x;
     private Long owner_sign_y;
     private Long owner_sign_scale;
+    private Long owner_sign_page;
     private String owner_sign_url;
     private List<PageSize> page_sizes;
     private List<ToxicClause> clauses;

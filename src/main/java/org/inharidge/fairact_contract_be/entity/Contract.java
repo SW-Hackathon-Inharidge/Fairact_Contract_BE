@@ -40,11 +40,13 @@ public class Contract extends BaseUnixTimeEntity {
     private Long workerSignX;
     private Long workerSignY;
     private Long workerSignScale;
+    private Long workerSignPage;
     private String workerSignUrl;
 
     private Long ownerSignX;
     private Long ownerSignY;
     private Long ownerSignScale;
+    private Long ownerSignPage;
     private String ownerSignUrl;
 
     private List<PageSize> pageSize;
@@ -85,10 +87,12 @@ public class Contract extends BaseUnixTimeEntity {
                 .worker_sign_x(workerSignX)
                 .worker_sign_y(workerSignY)
                 .worker_sign_scale(workerSignScale)
+                .worker_sign_page(workerSignPage)
                 .worker_sign_url(workerSignUrl)
                 .owner_sign_x(ownerSignX)
                 .owner_sign_y(ownerSignY)
                 .owner_sign_scale(ownerSignScale)
+                .owner_sign_page(ownerSignPage)
                 .owner_sign_url(ownerSignUrl)
                 .page_sizes(pageSize)
                 .clauses(clauses)
