@@ -103,6 +103,7 @@ public class ContractCommandController {
 
             contractCommandService.updateContractEmailByContractId(
                     contractId, contractEmailSendingRequestDTO.getOpponent_email());
+
             contractCommandService.createEmailInfoInRedis(
                     contractId,
                     userId,

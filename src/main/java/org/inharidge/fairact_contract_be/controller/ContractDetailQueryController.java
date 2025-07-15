@@ -60,20 +60,21 @@ public class ContractDetailQueryController {
     public SseEmitter findContractDetail(
             @RequestHeader(name = "Authorization") String authHeader) {
 
-        System.out.println(authHeader);
+
+        String token = AuthorizationHeaderUtil.extractToken(authHeader);
+        Long userId = 0L;
+
         try {
-            String token = AuthorizationHeaderUtil.extractToken(authHeader);
-            Long userId = jwtTokenService.extractUserId(token);
+            userId = jwtTokenService.extractUserId(token);
 
             return sseEmitterManager.addEmitter(userId, "contract-detail");
         } catch (JwtAuthenticationException e) {
             SseEmitter emitter = new SseEmitter(60 * 60 * 1000L); // 1시간 유지
-            sseEmitterManager.sendErrorToClient(emitter, "Invalid JWT: " + e.getMessage());
             return emitter;
 
         } catch (Exception e) {
             SseEmitter emitter = new SseEmitter(60 * 60 * 1000L); // 1시간 유지
-            sseEmitterManager.sendErrorToClient(emitter, "Internal error: " + e.getMessage());
+            sseEmitterManager.sendErrorToClient(userId, "error", "Internal error: " + e.getMessage());
             return emitter;
         }
     }
@@ -83,20 +84,19 @@ public class ContractDetailQueryController {
     public SseEmitter findContractToxicClause(
             @RequestHeader(name = "Authorization") String authHeader) {
 
-        System.out.println(authHeader);
+        String token = AuthorizationHeaderUtil.extractToken(authHeader);
+        Long userId = 0L;
+
         try {
-            String token = AuthorizationHeaderUtil.extractToken(authHeader);
-            Long userId = jwtTokenService.extractUserId(token);
+            userId = jwtTokenService.extractUserId(token);
 
             return sseEmitterManager.addEmitter(userId, "toxic-clause");
         } catch (JwtAuthenticationException e) {
-            SseEmitter emitter = new SseEmitter(60 * 60 * 1000L); // 1시간 유지
-            sseEmitterManager.sendErrorToClient(emitter, "Invalid JWT: " + e.getMessage());
-            return emitter;
+            return new SseEmitter(60 * 60 * 1000L);
 
         } catch (Exception e) {
             SseEmitter emitter = new SseEmitter(60 * 60 * 1000L); // 1시간 유지
-            sseEmitterManager.sendErrorToClient(emitter, "Internal error: " + e.getMessage());
+            sseEmitterManager.sendErrorToClient(userId, "error", "Internal error: " + e.getMessage());
             return emitter;
         }
     }
