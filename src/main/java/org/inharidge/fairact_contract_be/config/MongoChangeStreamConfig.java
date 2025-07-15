@@ -62,7 +62,7 @@ public class MongoChangeStreamConfig {
                                 dto.setOwner_sign_url(preSignedUrl);
                             }
 
-                            System.out.println("🟡 감지된 Contract.clauses 변경: " + contract);
+                            System.out.println("🟡 감지된 Contract.clauses 변경: " + contract.getId());
 
                             if (contract.getWorker_id() != null)
                                 sseEmitterManager.sendToUser(contract.getWorker_id(), "toxic-clause", dto);
