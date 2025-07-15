@@ -123,7 +123,7 @@ public class ContractCommandService {
             contract.setIs_owner_signed(true);
             contract.setOwner_sign_x(contractDigitalSignRequestDTO.getSign_x());
             contract.setOwner_sign_y(contractDigitalSignRequestDTO.getSign_y());
-            contract.setOwner_sign_scale(contractDigitalSignRequestDTO.getSign_page());
+            contract.setOwner_sign_page(contractDigitalSignRequestDTO.getSign_page());
             contract.setOwner_sign_url(signUrl);
         } else if (contract.getWorker_id() != null && contract.getWorker_id().equals(userId)) {
             contract.setIs_worker_signed(true);
@@ -170,7 +170,7 @@ public class ContractCommandService {
         if (redisService.exists("email:" + contractId + ":" + opponent_email))
             throw new AlreadySendEmailException("Already Email Sented, opponent_email : " + opponent_email);
 
-        redisService.save("email:" + contractId + ":" + opponent_email, contractId, 60 * 60 * 24);
+        redisService.save("email:" + contractId + ":" + opponent_email, contractId, 60 * 60);
     }
 
     public ContractDetailDTO updateContractStateByInviteAccepted(String contractId, Long userId, String userName) {
@@ -197,9 +197,7 @@ public class ContractCommandService {
             dto.setOwner_sign_url(preSignedUrl);
         }
 
-        // 근로자에게 초대 수락했을 때, 고용주에게 실시간 알림 전송
-        if (contract.getWorker_id() != null && contract.getWorker_id().equals(userId))
-            sseEmitterManager.sendToUser(saved.getOwner_id(), "contract-detail", dto);
+        sseEmitterManager.sendToUser(dto.getOwner_id(), "contract-detail", dto);
 
         return dto;
     }
