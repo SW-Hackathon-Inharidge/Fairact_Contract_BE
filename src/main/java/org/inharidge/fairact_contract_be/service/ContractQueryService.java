@@ -1,16 +1,22 @@
 package org.inharidge.fairact_contract_be.service;
 
 import org.inharidge.fairact_contract_be.dto.ContractDetailDTO;
+import org.inharidge.fairact_contract_be.dto.ContractPageListDTO;
 import org.inharidge.fairact_contract_be.dto.ContractSummaryDTO;
 import org.inharidge.fairact_contract_be.entity.Contract;
 import org.inharidge.fairact_contract_be.exception.NotFoundContractException;
 import org.inharidge.fairact_contract_be.repository.ContractRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 
 @Service
 public class ContractQueryService {
+
+    private static final int pageSize = 10;
 
     private final ContractRepository contractRepository;
     private final MinioService minioService;
@@ -59,5 +65,18 @@ public class ContractQueryService {
         }
 
         return dto;
+    }
+
+    public ContractPageListDTO findPagedOwnerContracts(Long userId, Integer page) {
+        Pageable pageable = PageRequest.of(page, pageSize, Sort.by(Sort.Direction.DESC, "id"));
+
+        Page<Contract> contractsPage = contractRepository.findByOwnerId(userId, pageable);
+
+        return ContractPageListDTO.builder()
+                .contract_summary_list(contractsPage.getContent().stream().map(Contract::toContractSummaryDTO).toList())
+                .cur_page((long) page)
+                .total_element(contractsPage.getTotalElements())
+                .total_pages((long) contractsPage.getTotalPages())
+                .build();
     }
 }

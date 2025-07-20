@@ -1,6 +1,8 @@
 package org.inharidge.fairact_contract_be.repository;
 
 import org.inharidge.fairact_contract_be.entity.Contract;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -27,5 +29,8 @@ public interface ContractRepository extends MongoRepository<Contract, String> {
 
     @Query("{ 'owner_id': ?0 }")
     List<Contract> findByOwnerIdCustom(Long ownerId);
+
+    @Query("{ 'owner_id': ?0 }")
+    Page<Contract> findByOwnerId(Long ownerId, Pageable pageable);
 
 }

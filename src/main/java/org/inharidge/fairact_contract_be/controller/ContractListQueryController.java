@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import org.inharidge.fairact_contract_be.dto.ContractPageListDTO;
 import org.inharidge.fairact_contract_be.dto.ContractSummaryDTO;
 import org.inharidge.fairact_contract_be.dto.request.ContractIdListRequestDTO;
 import org.inharidge.fairact_contract_be.exception.JwtAuthenticationException;
@@ -143,9 +144,48 @@ public class ContractListQueryController {
     }
 
     // 나의 문서 탭
-    //TODO:: 나의 문서 목록 10개씩 Pagination해서 조회 API(근로자 배열)
+    @Operation(
+            summary = "고용주의 계약서 목록 조회 (페이지네이션)",
+            description = "현재 로그인된 고용주의 계약서들을 페이지 단위로 반환합니다. 페이지는 0부터 시작하며, 한 페이지에 10개씩 반환됩니다."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "계약 페이지 리스트 반환 성공",
+                    content = @Content(schema = @Schema(implementation = ContractPageListDTO.class))
+            ),
+            @ApiResponse(responseCode = "401", description = "JWT 인증 실패"),
+            @ApiResponse(responseCode = "500", description = "서버 내부 오류")
+    })
+    @GetMapping("/me/{page}")
+    public ResponseEntity<?> findPagedOwnerContracts(
+            @RequestHeader(name = "Authorization") String authHeader,
+            @PathVariable Integer page) {
 
-    //TODO:: 나의 문서 목록 10개씩 Pagination해서 조회 API(고용주 배열)
+        try {
+            String token = AuthorizationHeaderUtil.extractToken(authHeader);
+            Long userId = jwtTokenService.extractUserId(token);
+            ContractPageListDTO contractPageListDTO =
+                    contractQueryService.findPagedOwnerContracts(userId, page);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Content-Type", "application/json");
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .body(contractPageListDTO);
+
+        } catch (JwtAuthenticationException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Invalid JWT: " + e.getMessage());
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Internal error: " + e.getMessage());
+        }
+    }
+
+    //TODO:: 나의 문서 목록 10개씩 Pagination해서 조회 API(근로자 배열)
 
     // 초대 대기 계약
     //TODO:: 초대 수락 전 계약 목록 10개씩 Pagination해서 조회 API(근로자, 고용주 통합)
