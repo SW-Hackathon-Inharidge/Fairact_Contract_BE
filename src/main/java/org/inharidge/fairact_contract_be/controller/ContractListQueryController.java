@@ -157,7 +157,7 @@ public class ContractListQueryController {
             @ApiResponse(responseCode = "401", description = "JWT 인증 실패"),
             @ApiResponse(responseCode = "500", description = "서버 내부 오류")
     })
-    @GetMapping("/me/{page}")
+    @GetMapping("/me/owner/{page}")
     public ResponseEntity<?> findPagedOwnerContracts(
             @RequestHeader(name = "Authorization") String authHeader,
             @PathVariable Integer page) {
