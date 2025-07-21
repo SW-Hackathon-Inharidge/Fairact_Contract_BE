@@ -92,4 +92,17 @@ public class ContractQueryService {
                 .total_pages((long) contractsPage.getTotalPages())
                 .build();
     }
+
+    public ContractPageListDTO findPagedIsInvitedFalseContracts(Long userId, Integer page) {
+        Pageable pageable = PageRequest.of(page, pageSize, Sort.by(Sort.Direction.DESC, "id"));
+
+        Page<Contract> contractsPage = contractRepository.findByIsInvitedFalse(userId, pageable);
+
+        return ContractPageListDTO.builder()
+                .contract_summary_list(contractsPage.getContent().stream().map(Contract::toContractSummaryDTO).toList())
+                .cur_page((long) page)
+                .total_element(contractsPage.getTotalElements())
+                .total_pages((long) contractsPage.getTotalPages())
+                .build();
+    }
 }

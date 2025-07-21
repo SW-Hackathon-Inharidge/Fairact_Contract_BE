@@ -33,6 +33,9 @@ public interface ContractRepository extends MongoRepository<Contract, String> {
     @Query("{ 'owner_id': ?0 }")
     Page<Contract> findByOwnerId(Long ownerId, Pageable pageable);
 
-    @Query("{ 'owner_id': ?0}")
-    Page<Contract> findByWorkerId(Long userId, Pageable pageable);
+    @Query("{ 'worker_id': ?0}")
+    Page<Contract> findByWorkerId(Long workerId, Pageable pageable);
+
+    @Query("{ $and: [{'is_invite_accepted': false}, {$or: [{worker_id: $0}, {owner_id:  $0}]}]}")
+    Page<Contract> findByIsInvitedFalse(Long userId, Pageable pageable);
 }
